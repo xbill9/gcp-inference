@@ -1,0 +1,56 @@
+{
+  "prompt": "Write a short paragraph about the ocean.",
+  "max_tokens": 100,
+  "summary": [
+    {
+      "backend": "maas",
+      "label": "Gemma 4 26B, Vertex AI MaaS",
+      "median_seconds": 7.077,
+      "median_tokens_per_second": 14.2,
+      "min_tps": 4.0,
+      "max_tps": 32.6,
+      "tokens": "100-100",
+      "failed": 1
+    }
+  ],
+  "runs": [
+    {
+      "backend": "maas",
+      "label": "Gemma 4 26B, Vertex AI MaaS",
+      "text": "The ocean is a vast, rhythmic expanse of blue that covers the majority of our planet, acting as the lifeblood of Earth. Beneath its rolling surface lies a world of profound mystery, ranging from sun-drenched coral reefs teeming with vibrant life to the crushing, silent darkness of the deepest trenches. It regulates our climate, provides a home to countless species, and exerts a powerful, hypnotic pull on the human spirit. Whether it is crashing against rugged cliffs or resting in a calm, glassy mirror,",
+      "completion_tokens": 100,
+      "seconds": 3.068,
+      "tokens_per_second": 32.6
+    },
+    {
+      "backend": "maas",
+      "label": "Gemma 4 26B, Vertex AI MaaS",
+      "text": "The ocean is a vast, rhythmic expanse of blue that covers the majority of our planet, acting as the lifeblood of Earth's ecosystem. Beneath its rolling surface lies a world of profound mystery, ranging from sun-drenched coral reefs teeming with vibrant life to the crushing, silent darkness of the deepest trenches. It regulates our climate, provides a home to countless species, and exerts a powerful, hypnotic pull on the human spirit. Whether viewed as a source of sustenance or a symbol of the infinite",
+      "completion_tokens": 100,
+      "seconds": 7.704,
+      "tokens_per_second": 13.0
+    },
+    {
+      "backend": "maas",
+      "label": "Gemma 4 26B, Vertex AI MaaS",
+      "text": "The ocean is a vast, rhythmic expanse of blue that covers the majority of our planet, acting as the lifeblood of the Earth. Beneath its rolling surface lies a world of profound mystery, ranging from sun-drenched coral reefs teeming with vibrant life to the crushing, silent darkness of the deepest trenches. It regulates our climate, provides a home to countless species, and exerts a powerful, hypnotic pull on the human spirit. Whether it is crashing against rugged cliffs or resting in a calm, glassy mirror",
+      "completion_tokens": 100,
+      "seconds": 6.451,
+      "tokens_per_second": 15.5
+    },
+    {
+      "backend": "maas",
+      "label": "Gemma 4 26B, Vertex AI MaaS",
+      "text": "The ocean is a vast, rhythmic expanse of blue that covers the majority of our planet, acting as the lifeblood of Earth's ecosystem. Beneath its rolling surface lies a world of profound mystery, ranging from sun-drenched coral reefs teeming with vibrant life to the crushing, silent darkness of the deepest trenches. It regulates our climate, provides a home to countless species, and exerts a powerful, hypnotic influence on the human spirit. Whether viewed as a source of endless wonder or a force of unt",
+      "completion_tokens": 100,
+      "seconds": 25.17,
+      "tokens_per_second": 4.0
+    }
+  ],
+  "failed": [
+    {
+      "backend": "maas",
+      "error": "HTTPError: HTTP Error 429: Too Many Requests"
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+gce        parallel   1     252 tokens in    2.73s  =    92.2 tok/s
+gce        parallel   4    1030 tokens in    3.39s  =   304.1 tok/s
+gce        parallel  16    4280 tokens in    4.98s  =   859.6 tok/s
+gke        parallel   1     252 tokens in    2.84s  =    88.8 tok/s
+gke        parallel   4    1025 tokens in    2.66s  =   385.0 tok/s
+gke        parallel  16    4150 tokens in    3.17s  =  1310.0 tok/s
+tpu        parallel   1     291 tokens in    2.76s  =   105.4 tok/s
+tpu        parallel   4    1164 tokens in    2.98s  =   390.8 tok/s
+tpu        parallel  16    4656 tokens in    3.86s  =  1207.4 tok/s

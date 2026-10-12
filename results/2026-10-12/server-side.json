@@ -1,0 +1,27 @@
+{
+  "prompt": "Write a short paragraph about the ocean.",
+  "metric": "vllm:inter_token_latency_seconds",
+  "rows": [
+    {
+      "backend": "gce",
+      "inter_token_intervals": 415.0,
+      "decode_seconds": 2.9003,
+      "server_decode_tok_s": 143.1,
+      "client_median_tok_s": 92.2
+    },
+    {
+      "backend": "gke",
+      "inter_token_intervals": 415.0,
+      "decode_seconds": 2.9655,
+      "server_decode_tok_s": 139.9,
+      "client_median_tok_s": 89.5
+    },
+    {
+      "backend": "cloudrun",
+      "inter_token_intervals": 495.0,
+      "decode_seconds": 3.4894,
+      "server_decode_tok_s": 141.9,
+      "client_median_tok_s": 121.8
+    }
+  ]
+}

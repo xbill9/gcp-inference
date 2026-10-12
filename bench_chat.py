@@ -24,15 +24,20 @@ def main() -> int:
     ap.add_argument("--json")
     a = ap.parse_args()
 
-    rows = []
+    rows, failed = [], []
     for b in backends.configured():
-        backends.chat_once(b, "Hi", max_tokens=4)  # warm the path; not recorded
+        try:
+            backends.chat_once(b, "Hi", max_tokens=4)  # warm the path; not recorded
+        except Exception:
+            pass
         for _ in range(a.repeats):
-            r = backends.chat_once(b, PROMPT, max_tokens=a.max_tokens)
-            rows.append(r)
+            try:
+                rows.append(backends.chat_once(b, PROMPT, max_tokens=a.max_tokens))
+            except Exception as exc:  # a refused request is a result, not a crash
+                failed.append({"backend": b.name, "error": f"{type(exc).__name__}: {exc}"[:200]})
 
     print(f"Prompt: {PROMPT!r}, max_tokens={a.max_tokens}, {a.repeats} repeats per backend\n")
-    print("backend     median s  median tok/s  tok/s range     tokens")
+    print("backend     median s  median tok/s  tok/s range     tokens  failed")
     summary = []
     for name in dict.fromkeys(r["backend"] for r in rows):
         mine = [r for r in rows if r["backend"] == name]
@@ -41,13 +46,15 @@ def main() -> int:
         toks = [r["completion_tokens"] for r in mine]
         s = {"backend": name, "label": mine[0]["label"], "median_seconds": round(statistics.median(secs), 3),
              "median_tokens_per_second": round(statistics.median(tps), 1), "min_tps": min(tps), "max_tps": max(tps),
-             "tokens": f"{min(toks)}-{max(toks)}"}
+             "tokens": f"{min(toks)}-{max(toks)}", "failed": sum(f["backend"] == name for f in failed)}
         summary.append(s)
         print(f"{name:<10} {s['median_seconds']:>9}  {s['median_tokens_per_second']:>12}  "
-              f"{s['min_tps']:>6}-{s['max_tps']:<7}  {s['tokens']}")
+              f"{s['min_tps']:>6}-{s['max_tps']:<7}  {s['tokens']:>6}  {s['failed']:>6}")
+    for f in failed:
+        print(f"  failed: {f['backend']}: {f['error']}")
     if a.json:
         with open(a.json, "w") as f:
-            json.dump({"prompt": PROMPT, "max_tokens": a.max_tokens, "summary": summary, "runs": rows}, f, indent=2)
+            json.dump({"prompt": PROMPT, "max_tokens": a.max_tokens, "summary": summary, "runs": rows, "failed": failed}, f, indent=2)
     return 0
 
 

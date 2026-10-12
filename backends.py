@@ -13,7 +13,8 @@ Every self-hosted backend runs vLLM with --enable-auto-tool-choice, so all of th
 can drive an agent, the TPU included.
 
 The Vertex AI endpoint serves vLLM behind :rawPredict, whose path does not end in
-/chat/completions; _vertex_raw_predict rewrites the OpenAI client's request onto it.
+/chat/completions; _vertex_raw_predict rewrites the OpenAI client's request onto it. A shared
+endpoint does not stream, so that one backend runs Strands with stream=False.
 """
 
 import json
@@ -65,7 +66,7 @@ def configured() -> list[Backend]:
         found.append(Backend("cloudrun", "openai", "vLLM on Cloud Run (L4)",
                              env("RUN_MODEL", "gemma"), url=env("RUN_URL"), auth="identity"))
     if env("TPU_URL"):
-        found.append(Backend("tpu", "openai", "vLLM on Cloud TPU v6e-1",
+        found.append(Backend("tpu", "openai", "vLLM on Cloud TPU " + env("TPU_TYPE", "v5e-1"),
                              env("TPU_MODEL", "gemma"), url=env("TPU_URL")))
     only = env("BACKENDS")
     if only:
@@ -111,15 +112,33 @@ def strands_model(b: Backend, temperature: float = 0.0, max_tokens: int = 512):
                            model_id=b.model,
                            params={"temperature": temperature, "max_output_tokens": max_tokens})
     if b.kind == "openai":
-        import httpx
         from strands.models.openai import OpenAIModel
         client_args = {"base_url": b.url, "api_key": token(b.auth)}
+        extra = {}
         if b.name == "vertex":
-            client_args["http_client"] = httpx.AsyncClient(event_hooks={"request": [_async(_vertex_raw_predict)]},
-                                                           timeout=300)
+            client_args["http_client"] = _KeptOpen(event_hooks={"request": [_async(_vertex_raw_predict)]},
+                                                   timeout=300)
+            extra["stream"] = False  # a shared Vertex AI endpoint does not stream
         return OpenAIModel(client_args=client_args, model_id=b.model,
-                           params={"temperature": temperature, "max_tokens": max_tokens})
+                           params={"temperature": temperature, "max_tokens": max_tokens}, **extra)
     raise ValueError(f"{b.name}: unknown kind {b.kind}")
+
+
+def _kept_open():
+    import httpx
+
+    class KeptOpen(httpx.AsyncClient):
+        """Strands opens and closes an OpenAI client per request, which closes the httpx client it was
+        given; the agent's next turn would then fail. This one ignores the close."""
+
+        async def aclose(self) -> None:
+            return None
+
+    return KeptOpen
+
+
+def _KeptOpen(**kwargs):
+    return _kept_open()(**kwargs)
 
 
 def _async(fn):

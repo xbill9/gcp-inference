@@ -1,0 +1,7 @@
+strands-agents 1.55.0
+openai 2.54.0
+google-genai 2.22.0
+httpx 0.28.1
+Python 3.14.7
+Google Cloud SDK 588.0.0
+Client Version: v1.35.9-dispatcher

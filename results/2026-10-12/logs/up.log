@@ -1,0 +1,25 @@
+18:16:41Z run: deploying strands-demo-run in us-east4
+18:16:42Z gke: creating Autopilot cluster strands-demo-gke in us-central1
+Create request issued for: [dockerhub]
+Waiting for operation [projects/comglitn/locations/us-central1/operations/8e835f51-ef04-4872-a44f-5f1467d9bd50] to complete...
+........done.
+Created repository [dockerhub].
+ERROR: (gcloud.container.clusters.create-auto) ResponseError: code=404, message=Not found: project "comglitn" does not have a subnetwork named "" in region "us-central1". This command is authenticated as xbill@glitnir.com which is the active account specified by the [core/account] property.
+18:16:47Z gke: cluster create failed
+Using endpoint [https://us-central1-aiplatform.googleapis.com/]
+ERROR: (gcloud.ai.models.upload) NOT_FOUND: The image us-central1-docker.pkg.dev/comglitn/dockerhub/vllm/vllm-openai:v0.30.0-cu129 does not exist. This command is authenticated as xbill@glitnir.com which is the active account specified by the [core/account] property.
+18:16:48Z vertex: model upload failed
+18:16:54Z gce: no capacity in us-east4-a, trying the next zone
+18:17:08Z gce: no capacity in us-east4-c, trying the next zone
+18:17:11Z gce: us-east4-b:  - Invalid value for field 'resource.machineType': 'https://compute.googleapis.com/compute/v1/projects/comglitn/zones/us-east4-b/machineTypes/g2-standard-4'. Machine type with name 'g2-standard-4' does not exist in zone 'us-east4-b'.
+Use `gcloud compute machine-types list --zones` to see the available machine  types.
+18:19:21Z tpu: no capacity in us-east5-b, trying the next zone (ERROR: (gcloud.compute.tpus.tpu-vm.create) {)
+18:20:58Z tpu: no capacity in us-east5-a, trying the next zone (ERROR: (gcloud.compute.tpus.tpu-vm.create) {)
+18:21:39Z tpu: no capacity in us-east5-c, trying the next zone (  "error": {)
+18:21:39Z tpu: no capacity in any of: us-east5-b us-east5-a us-east5-c
+
+Logs URL: https://console.cloud.google.com/logs/viewer?project=comglitn&resource=cloud_run_revision/service_name/strands-demo-run/revision_name/strands-demo-run-00001-hfq&advancedFilter=resource.type%3D%22cloud_run_revision%22%0Aresource.labels.service_name%3D%22strands-demo-run%22%0Aresource.labels.revision_name%3D%22strands-demo-run-00001-hfq%22 
+For more troubleshooting guidance, see https://docs.cloud.google.com/run/docs/troubleshooting#container-failed-to-start
+18:28:07Z run: deploy failed
+
+Next: stage/forward.sh && source stage/demo.env && python3 stage/check.py --wait 1800

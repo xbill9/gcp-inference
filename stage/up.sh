@@ -42,7 +42,7 @@ fail() { say "$*"; return 1; }
 gcloud auth print-access-token >/dev/null 2>&1 || { echo "gcloud is not logged in: run gcloud auth login"; exit 1; }
 
 gce() {
-  local name=strands-demo-gce zone out ud
+  local name=${GCE_NAME:-strands-demo-gce} zone out ud
   if gcloud compute instances list --project "$PROJECT" --filter="name=$name" --format='value(zone)' | grep -q .; then
     say "gce: already up"; return 0
   fi
@@ -156,6 +156,8 @@ tpu() {
 #!/usr/bin/env bash
 set -x
 docker inspect vllm >/dev/null 2>&1 && exit 0
+# The script runs a second after boot, before Docker Hub is reachable: retry the pull.
+until docker pull $TPU_IMAGE; do sleep 10; done
 docker run -d --name vllm --restart unless-stopped --privileged --net=host \
   -v /dev/shm:/dev/shm --shm-size 10gb -e HF_HOME=/dev/shm $TPU_IMAGE \
   vllm serve $TPU_MODEL --served-model-name gemma --max-model-len 8192 --port 8000 \

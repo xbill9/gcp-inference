@@ -1,0 +1,12 @@
+launch 2026-10-12T12:18:15.212-07:00
+healthy-by 2026-10-12T19:27:54Z
+Existing host keys found in /home/xbill/.ssh/google_compute_known_hosts
+2026-10-01T04:04:08+0000 packer-6abddb8a-d9c7-1682-a004-ba07bdd11c8c systemd[1]: Starting Google Compute Engine Startup Scripts...
+2026-10-01T04:04:09+0000 packer-6abddb8a-d9c7-1682-a004-ba07bdd11c8c google_metadata_script_runner[1443]: Starting startup scripts (version 20250116.00-0ubuntu1~22.04.3).
+2026-10-01T04:04:09+0000 packer-6abddb8a-d9c7-1682-a004-ba07bdd11c8c systemd[1]: Finished Google Compute Engine Startup Scripts.
+(EngineCore pid=64) INFO 10-12 19:25:06 [default_loader.py:430] Loading weights took 1.25 seconds
+(APIServer pid=1) INFO:     Application startup complete.
+2026-10-12T19:23:17.922107036Z
+2026-10-12T19:25:07.030831706Z (EngineCore pid=64) INFO 10-12 19:25:07 [model_runner.py:428] Model loading took 2.86 GiB memory and 26.418878 seconds
+2026-10-12T19:27:10.552226995Z (EngineCore pid=64) INFO 10-12 19:27:10 [monitor.py:53] torch.compile took 119.68 s in total
+2026-10-12T19:27:52.273208029Z (APIServer pid=1) INFO:     Application startup complete.

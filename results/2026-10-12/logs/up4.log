@@ -1,0 +1,8 @@
+18:21:56Z gce: no capacity in us-west1-a, trying the next zone
+18:22:11Z gce: no capacity in us-west1-b, trying the next zone
+18:22:23Z gce: no capacity in us-west1-c, trying the next zone
+18:22:40Z gce: no capacity in us-west4-a, trying the next zone
+18:22:51Z gce: no capacity in us-west4-c, trying the next zone
+18:23:03Z gce: launched in northamerica-northeast1-b
+
+Next: stage/forward.sh && source stage/demo.env && python3 stage/check.py --wait 1800

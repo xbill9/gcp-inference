@@ -1,0 +1,59 @@
+{
+  "question": "What is the capital of France? Answer in one word.",
+  "orchestrator": "gemini-3.5-flash-lite",
+  "results": [
+    {
+      "backend": "tpu",
+      "label": "vLLM on Cloud TPU v5e-1",
+      "text": "Paris",
+      "completion_tokens": 2,
+      "seconds": 0.207,
+      "tokens_per_second": 9.7
+    },
+    {
+      "backend": "gke",
+      "label": "vLLM on GKE Autopilot (L4)",
+      "text": "Paris",
+      "completion_tokens": 2,
+      "seconds": 0.228,
+      "tokens_per_second": 8.8
+    },
+    {
+      "backend": "gce",
+      "label": "vLLM on Compute Engine g2 (L4)",
+      "text": "Paris",
+      "completion_tokens": 2,
+      "seconds": 0.384,
+      "tokens_per_second": 5.2
+    },
+    {
+      "backend": "vertex",
+      "label": "Vertex AI endpoint (vLLM, L4)",
+      "text": "Paris",
+      "completion_tokens": 2,
+      "seconds": 0.998,
+      "tokens_per_second": 2.0
+    },
+    {
+      "backend": "cloudrun",
+      "label": "vLLM on Cloud Run (L4)",
+      "text": "Paris",
+      "completion_tokens": 2,
+      "seconds": 1.011,
+      "tokens_per_second": 2.0
+    },
+    {
+      "backend": "gemini",
+      "label": "Gemini on Vertex AI",
+      "text": "Paris",
+      "completion_tokens": 1,
+      "seconds": 1.387,
+      "tokens_per_second": 0.7
+    },
+    {
+      "backend": "maas",
+      "label": "Gemma 4 26B, Vertex AI MaaS",
+      "error": "HTTPError: HTTP Error 429: Too Many Requests"
+    }
+  ]
+}

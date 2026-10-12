@@ -1,0 +1,70 @@
+{
+  "prompt": "Write a short paragraph about the ocean.",
+  "max_tokens": 256,
+  "rounds": 3,
+  "rows": [
+    {
+      "backend": "gce",
+      "parallel": 1,
+      "tokens": 252,
+      "seconds": 2.73,
+      "aggregate_tok_s": 92.2
+    },
+    {
+      "backend": "gce",
+      "parallel": 4,
+      "tokens": 1030,
+      "seconds": 3.39,
+      "aggregate_tok_s": 304.1
+    },
+    {
+      "backend": "gce",
+      "parallel": 16,
+      "tokens": 4280,
+      "seconds": 4.98,
+      "aggregate_tok_s": 859.6
+    },
+    {
+      "backend": "gke",
+      "parallel": 1,
+      "tokens": 252,
+      "seconds": 2.84,
+      "aggregate_tok_s": 88.8
+    },
+    {
+      "backend": "gke",
+      "parallel": 4,
+      "tokens": 1025,
+      "seconds": 2.66,
+      "aggregate_tok_s": 385.0
+    },
+    {
+      "backend": "gke",
+      "parallel": 16,
+      "tokens": 4150,
+      "seconds": 3.17,
+      "aggregate_tok_s": 1310.0
+    },
+    {
+      "backend": "tpu",
+      "parallel": 1,
+      "tokens": 291,
+      "seconds": 2.76,
+      "aggregate_tok_s": 105.4
+    },
+    {
+      "backend": "tpu",
+      "parallel": 4,
+      "tokens": 1164,
+      "seconds": 2.98,
+      "aggregate_tok_s": 390.8
+    },
+    {
+      "backend": "tpu",
+      "parallel": 16,
+      "tokens": 4656,
+      "seconds": 3.86,
+      "aggregate_tok_s": 1207.4
+    }
+  ]
+}

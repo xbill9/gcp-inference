@@ -1,0 +1,3 @@
+18:24:30Z tpu: us-central1-b: ERROR: (gcloud.compute.tpus.tpu-vm.create) {
+
+Next: stage/forward.sh && source stage/demo.env && python3 stage/check.py --wait 1800

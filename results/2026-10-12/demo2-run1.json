@@ -1,0 +1,62 @@
+{
+  "question": "What is the capital of France? Answer in one word.",
+  "orchestrator": "gemini-3.5-flash-lite",
+  "results": [
+    {
+      "backend": "gke",
+      "label": "vLLM on GKE Autopilot (L4)",
+      "text": "Paris",
+      "completion_tokens": 2,
+      "seconds": 0.214,
+      "tokens_per_second": 9.4
+    },
+    {
+      "backend": "tpu",
+      "label": "vLLM on Cloud TPU v5e-1",
+      "text": "Paris",
+      "completion_tokens": 2,
+      "seconds": 0.217,
+      "tokens_per_second": 9.2
+    },
+    {
+      "backend": "gce",
+      "label": "vLLM on Compute Engine g2 (L4)",
+      "text": "Paris",
+      "completion_tokens": 2,
+      "seconds": 0.392,
+      "tokens_per_second": 5.1
+    },
+    {
+      "backend": "maas",
+      "label": "Gemma 4 26B, Vertex AI MaaS",
+      "text": "Paris",
+      "completion_tokens": 2,
+      "seconds": 1.052,
+      "tokens_per_second": 1.9
+    },
+    {
+      "backend": "vertex",
+      "label": "Vertex AI endpoint (vLLM, L4)",
+      "text": "Paris",
+      "completion_tokens": 2,
+      "seconds": 1.066,
+      "tokens_per_second": 1.9
+    },
+    {
+      "backend": "cloudrun",
+      "label": "vLLM on Cloud Run (L4)",
+      "text": "Paris",
+      "completion_tokens": 2,
+      "seconds": 1.075,
+      "tokens_per_second": 1.9
+    },
+    {
+      "backend": "gemini",
+      "label": "Gemini on Vertex AI",
+      "text": "Paris",
+      "completion_tokens": 1,
+      "seconds": 1.462,
+      "tokens_per_second": 0.7
+    }
+  ]
+}

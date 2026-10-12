@@ -1,0 +1,27 @@
+Question: How many of the ids are 10 or more? Answer with the number.
+Ids: [0, 2, 3, 20, 21, 22, 23, 10, 11, 12, 13]
+True answer: 8  tools: engine
+
+  gce        run 1/20  ok   quoted=8  filters=['id >= 10']  1.19s
+  gce        run 2/20  ok   quoted=8  filters=['id >= 10']  0.99s
+  gce        run 3/20  ok   quoted=8  filters=['id >= 10']  0.93s
+  gce        run 4/20  ok   quoted=8  filters=['id >= 10']  0.87s
+  gce        run 5/20  ok   quoted=8  filters=['id >= 10']  0.89s
+  gce        run 6/20  ok   quoted=8  filters=['id >= 10']  0.93s
+  gce        run 7/20  ok   quoted=8  filters=['id >= 10']  0.94s
+  gce        run 8/20  ok   quoted=8  filters=['id >= 10']  0.9s
+  gce        run 9/20  ok   quoted=8  filters=['id >= 10']  0.82s
+  gce        run 10/20  ok   quoted=8  filters=['id >= 10']  0.93s
+  gce        run 11/20  ok   quoted=8  filters=['id >= 10']  0.93s
+  gce        run 12/20  ok   quoted=8  filters=['id >= 10']  0.88s
+  gce        run 13/20  ok   quoted=8  filters=['id >= 10']  0.94s
+  gce        run 14/20  ok   quoted=8  filters=['id >= 10']  0.74s
+  gce        run 15/20  ok   quoted=8  filters=['id >= 10']  0.85s
+  gce        run 16/20  ok   quoted=8  filters=['id >= 10']  0.89s
+  gce        run 17/20  ok   quoted=8  filters=['id >= 10']  0.87s
+  gce        run 18/20  ok   quoted=8  filters=['id >= 10']  0.82s
+  gce        run 19/20  ok   quoted=8  filters=['id >= 10']  0.82s
+  gce        run 20/20  ok   quoted=8  filters=['id >= 10']  0.8s
+
+backend     runs  correct  right-filter  errors  median s  filters sent
+gce           20   20/20          20/20       0      0.89  id >= 10

@@ -100,7 +100,7 @@ def main():
         (2.7, 3.4, [("Strands agent", "OpenAIModel\ntool calls work", "laptop", 5.4, "localhost"),
                     ("SSH forward", "no public port", "path", 5.8, ""),
                     ("Cloud TPU VM", "vllm/vllm-tpu 0.30\nflex-start request", "gcp", 6.4, ""),
-                    ("TPU v6e-1", "one Trillium chip\nGemma 4 E2B, bf16", "chip", 5.4, "")]),
+                    ("TPU v5e-1", "one v5e chip\nGemma 4 E2B, bf16", "chip", 5.4, "")]),
     ])
     # One agent, seven backends, one row each
     fig, ax = canvas()
@@ -108,7 +108,7 @@ def main():
     backends = [("Gemini on Vertex AI", "GeminiModel", "gcp"), ("Gemma 4 MaaS", "OpenAIModel", "gcp"),
                 ("Vertex AI endpoint, L4", "OpenAIModel", "gcp"), ("Cloud Run, L4", "OpenAIModel", "gcp"),
                 ("GKE Autopilot, L4", "OpenAIModel", "gcp"), ("Compute Engine, L4", "OpenAIModel", "gcp"),
-                ("Cloud TPU v6e", "OpenAIModel", "chip")]
+                ("Cloud TPU v5e", "OpenAIModel", "chip")]
     h, step = 1.0, 1.17
     for i, (name, cls, kind) in enumerate(backends):
         y = H - 0.35 - h - i * step
@@ -139,7 +139,7 @@ def ways():
             ("Managed endpoint", ["Vertex AI", "your vLLM, L4"]),
             ("Serverless GPU", ["Cloud Run", "L4, scales to zero"]),
             ("Your GPU", ["Compute Engine", "GKE Autopilot"]),
-            ("Google chip", ["Cloud TPU", "v6e, vLLM TPU"])]
+            ("Google chip", ["Cloud TPU", "v5e, vLLM TPU"])]
     cw, gap, top, bot = 5.6, 0.75, 8.6, 3.4
     for i, (head, lines) in enumerate(cols):
         x = 0.9 + i * (cw + gap)
@@ -161,6 +161,73 @@ def ways():
     print(path)
 
 
+def precision():
+    """What fewer bits buy (memory), what they cost (quality), and where they run at full rate.
+
+    Memory and quality are the AWS deck's figures (gemma4-dev, model-level, platform-independent):
+    E2B weights in GPU memory per build, gpu-vllm-mi300x-2b dtype sweep 2026-10-07; share of the
+    3,880-record suite read correctly on one TPU v5e, tpu-vllm-v5e1-2b-* READMEs, 2026-09-29.
+    Native rate: L4 from the AWS deck (NVIDIA). TPU from Google's docs: v5e bf16 197 TFLOPs and int8
+    393 TOPs (tpu/docs/v5e); v6e bf16 918 TFLOPs, int8 1836 TOPs, fp8 918 (tpu/docs/v6e, tpu/docs/tpu7x).
+    No TPU page lists an fp8 rate for v5e or an int4 rate for either: "not listed".
+    """
+    fig = plt.figure(figsize=(16, 6.75), dpi=DPI, facecolor="white")
+    mem = [("bf16", 9.42), ("fp8", 7.07), ("int8", 7.07), ("int4", 6.32), ("int4 + tables", 2.85)]
+    qual = [("int8, from QAT weights", 0.686), ("bf16", 0.683), ("int4 + tables", 0.681),
+            ("int4, QAT", 0.678), ("fp8, from QAT weights", 0.670), ("int8, rounded from bf16", 0.670)]
+    chips = ["L4", "TPU v5e", "TPU v6e"]
+    fmts = ["bf16", "fp8", "int8", "int4"]
+    grid = {"L4": ["yes", "yes", "yes", "widened"], "TPU v5e": ["yes", "not listed", "2x bf16", "not listed"],
+            "TPU v6e": ["yes", "bf16 rate", "2x bf16", "not listed"]}
+    color = {"yes": GREEN, "2x bf16": GREEN, "bf16 rate": YELLOW, "widened": YELLOW, "not listed": "#9AA0A6"}
+
+    ax = fig.add_axes([0.11, 0.30, 0.20, 0.56])
+    names, vals = [m[0] for m in mem][::-1], [m[1] for m in mem][::-1]
+    ax.barh(names, vals, color=[GREEN if v < 3 else BLUE for v in vals], height=0.6)
+    for i, v in enumerate(vals):
+        ax.text(v + 0.15, i, f"{v:g} GiB", va="center", fontsize=15, color=INK)
+    ax.set_xlim(0, 14), ax.tick_params(labelsize=15, length=0), ax.set_xticks([])
+    for sp in ax.spines.values():
+        sp.set_visible(False)
+    ax.set_title("Memory: E2B weights", fontsize=20, weight="bold", color=INK, loc="left")
+
+    ax = fig.add_axes([0.50, 0.30, 0.17, 0.56])
+    names, vals = [q[0] for q in qual][::-1], [q[1] for q in qual][::-1]
+    ax.hlines(range(len(vals)), 0.66, vals, color="#DDDDDD", lw=3)
+    ax.scatter(vals, range(len(vals)), s=180, color=[GREEN if v >= 0.678 else YELLOW for v in vals], zorder=3)
+    for i, v in enumerate(vals):
+        ax.text(v + 0.0018, i, f"{v:.3f}", va="center", fontsize=15, color=INK)
+    ax.set_yticks(range(len(names)), names), ax.set_xlim(0.66, 0.695), ax.set_xticks([])
+    ax.tick_params(labelsize=14, length=0)
+    for sp in ax.spines.values():
+        sp.set_visible(False)
+    ax.set_title("Quality: suite accuracy", fontsize=20, weight="bold", color=INK, loc="left")
+
+    ax = fig.add_axes([0.77, 0.30, 0.21, 0.56])
+    ax.set_xlim(0, 4), ax.set_ylim(0, 3.6), ax.axis("off")
+    for j, f in enumerate(fmts):
+        ax.text(j + 0.5, 3.3, f, ha="center", va="center", fontsize=16, weight="bold", color=INK)
+    for i, c in enumerate(chips):
+        y = 2.5 - i
+        ax.text(-0.1, y, c, ha="right", va="center", fontsize=16, weight="bold", color=INK)
+        for j, v in enumerate(grid[c]):
+            ax.add_patch(FancyBboxPatch((j + 0.06, y - 0.38), 0.88, 0.76, boxstyle="round,pad=0,rounding_size=0.12",
+                                        fc=color[v], ec="none", alpha=0.9))
+            ax.text(j + 0.5, y, v.replace(" ", "\n") if len(v) > 7 else v, ha="center", va="center",
+                    fontsize=11 if len(v) > 7 else 12.5, weight="bold", color="white")
+    ax.set_title("Full-rate math on the chip", fontsize=20, weight="bold", color=INK, loc="left")
+
+    for x, t in [(0.02, "Fewer bits: less memory,\ndisk and bandwidth"),
+                 (0.36, "int4 trained for it (QAT): within\nhalf a point of bf16"),
+                 (0.70, "Faster only where the chip\nmultiplies that format")]:
+        fig.text(x, 0.06, t, fontsize=17, color=INK, weight="bold", linespacing=1.3)
+    path = os.path.join(OUT, "precision.png")
+    fig.savefig(path, facecolor="white")
+    plt.close(fig)
+    print(path)
+
+
 if __name__ == "__main__":
     main()
     ways()
+    precision()

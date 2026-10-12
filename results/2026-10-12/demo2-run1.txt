@@ -1,0 +1,15 @@
+Direct use of automatic function calling (AFC) in Models.generate_content is not recommended. Instead, we recommend to use AFC in Chat.send_message. Similarly, direct use of AFC in Models.generate_content_stream is not recommended. Instead, we recommend to use AFC in Chat.send_message_stream.
+Orchestrator: Gemini on Vertex AI (gemini-3.5-flash-lite)
+Backends as tools: gemini, maas, vertex, gce, gke, cloudrun, tpu
+
+| backend | answer | seconds | tokens/s |
+|---|---|---|---|
+| vLLM on GKE Autopilot (L4) | Paris | 0.214 | 9.4 |
+| vLLM on Cloud TPU v5e-1 | Paris | 0.217 | 9.2 |
+| vLLM on Compute Engine g2 (L4) | Paris | 0.392 | 5.1 |
+| Gemma 4 26B, Vertex AI MaaS | Paris | 1.052 | 1.9 |
+| Vertex AI endpoint (vLLM, L4) | Paris | 1.066 | 1.9 |
+| vLLM on Cloud Run (L4) | Paris | 1.075 | 1.9 |
+| Gemini on Vertex AI | Paris | 1.462 | 0.7 |
+
+[harness] 7 backend calls made; not asked by the agent: none

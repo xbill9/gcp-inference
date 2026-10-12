@@ -1,0 +1,9 @@
+fastest per run: {'gke': 1, 'tpu': 2}
+tpu       n=3 median=0.210 min=0.207 max=0.217
+gke       n=3 median=0.220 min=0.214 max=0.228
+gce       n=3 median=0.384 min=0.378 max=0.392
+vertex    n=3 median=0.998 min=0.967 max=1.066
+cloudrun  n=3 median=1.011 min=0.977 max=1.075
+maas      n=2 median=1.061 min=1.052 max=1.07
+gemini    n=3 median=1.462 min=1.387 max=1.464
+[(2, 'maas', 'HTTPError: HTTP Error 429: Too Many Requests')]

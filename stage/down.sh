@@ -18,15 +18,21 @@ gcloud compute instances list --project "$PROJECT" --filter="labels.managed-by=s
 while read -r n z; do say "gce: deleting $n ($z)"; gcloud compute instances delete "$n" --project "$PROJECT" --zone "$z" --quiet; done &
 
 # A flex-start request owns its node: deleting the request with --force deletes the node.
-for z in $(gcloud alpha compute tpus queued-resources list --project "$TPU_PROJECT" --zone - --filter="name~strands-demo-tpu" --format='value(name.segment(3))' 2>/dev/null); do
-  say "tpu: deleting queued resource strands-demo-tpu ($z)"
-  gcloud alpha compute tpus queued-resources delete strands-demo-tpu --project "$TPU_PROJECT" --zone "$z" --force --quiet &
-done
+gcloud alpha compute tpus queued-resources list --project "$TPU_PROJECT" --zone - --filter="name~strands-demo-tpu" \
+  --format='value(name.basename(),name.segment(3))' 2>/dev/null |
+while read -r n z; do
+  say "tpu: deleting queued resource $n ($z)"
+  gcloud alpha compute tpus queued-resources delete "$n" --project "$TPU_PROJECT" --zone "$z" --force --quiet
+done &
 gcloud compute tpus tpu-vm list --project "$TPU_PROJECT" --zone - --filter="name=strands-demo-tpu" --format='value(name.basename(),name.segment(3))' |
 while read -r n z; do say "tpu: deleting $n ($z)"; gcloud compute tpus tpu-vm delete "$n" --project "$TPU_PROJECT" --zone "$z" --quiet; done &
 
-if gcloud run services describe strands-demo-run --project "$PROJECT" --region "$RUN_REGION" >/dev/null 2>&1; then
-  say "run: deleting strands-demo-run"; gcloud run services delete strands-demo-run --project "$PROJECT" --region "$RUN_REGION" --quiet &
+# strands-demo-run, plus the -eager and -cache variants from the cold-start test
+for svc in $(gcloud run services list --project "$PROJECT" --region "$RUN_REGION" --filter="metadata.labels.managed-by=strands-demo" --format='value(metadata.name)'); do
+  say "run: deleting $svc"; gcloud run services delete "$svc" --project "$PROJECT" --region "$RUN_REGION" --quiet &
+done
+if gcloud storage buckets describe "gs://$PROJECT-strands-demo-cache" >/dev/null 2>&1; then
+  say "run: deleting gs://$PROJECT-strands-demo-cache"; gcloud storage rm -r "gs://$PROJECT-strands-demo-cache" --quiet >/dev/null 2>&1 &
 fi
 
 if gcloud container clusters describe strands-demo-gke --project "$PROJECT" --region "$GKE_REGION" >/dev/null 2>&1; then
@@ -51,7 +57,8 @@ echo; echo "Sweep (anything listed here is still billing):"
 gcloud compute instances list --project "$PROJECT" --filter="labels.managed-by=strands-demo OR guestAccelerators:* OR machineType~g2-" --format='value(name,zone.basename(),status)' | sed 's/^/  gce /'
 gcloud compute tpus tpu-vm list --project "$TPU_PROJECT" --zone - --format='value(name.basename(),state)' 2>/dev/null | sed 's/^/  tpu /'
 gcloud alpha compute tpus queued-resources list --project "$TPU_PROJECT" --zone - --format='value(name.basename(),state.state)' 2>/dev/null | sed 's/^/  tpu-queued /'
-gcloud run services list --project "$PROJECT" --filter="metadata.name=strands-demo-run" --format='value(metadata.name,region)' | sed 's/^/  run /'
+gcloud run services list --project "$PROJECT" --filter="metadata.labels.managed-by=strands-demo" --format='value(metadata.name,region)' | sed 's/^/  run /'
+gcloud storage buckets list --project "$PROJECT" --filter="name~strands-demo" --format='value(name)' | sed 's/^/  bucket /'
 gcloud container clusters list --project "$PROJECT" --format='value(name,location,status)' | sed 's/^/  gke /'
 gcloud ai endpoints list --project "$PROJECT" --region "$VERTEX_REGION" --format='value(displayName,name.basename())' 2>/dev/null | sed 's/^/  vertex /'
 echo "(sweep done)"

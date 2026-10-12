@@ -1,0 +1,7 @@
+18:43:09Z run: deploying strands-demo-run in us-east4
+
+Logs URL: https://console.cloud.google.com/logs/viewer?project=comglitn&resource=cloud_run_revision/service_name/strands-demo-run/revision_name/strands-demo-run-00003-jnl&advancedFilter=resource.type%3D%22cloud_run_revision%22%0Aresource.labels.service_name%3D%22strands-demo-run%22%0Aresource.labels.revision_name%3D%22strands-demo-run-00003-jnl%22 
+For more troubleshooting guidance, see https://docs.cloud.google.com/run/docs/troubleshooting#container-failed-to-start
+18:48:15Z run: deploy failed
+
+Next: stage/forward.sh && source stage/demo.env && python3 stage/check.py --wait 1800

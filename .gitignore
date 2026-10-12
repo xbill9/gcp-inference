@@ -9,3 +9,10 @@ stage/.up.t0
 stage/up*.log
 stage/vertex*.log
 stage/.fwd-*.log
+docs/slides/arch-ways.png
+docs/slides/arch-hosted.png
+docs/slides/arch-managed.png
+docs/slides/arch-gpus.png
+docs/slides/arch-tpu.png
+docs/slides/arch-overview.png
+docs/slides/precision.png

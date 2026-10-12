@@ -1,0 +1,7 @@
+18:50:43Z tpu: no capacity in us-east5-b, trying the next zone ()
+18:52:20Z tpu: no capacity in us-east5-a, trying the next zone ()
+18:53:04Z tpu: no capacity in us-east5-c, trying the next zone ()
+18:53:04Z tpu: no on-demand capacity in any of: us-east5-b us-east5-a us-east5-c; queueing a flex-start request in us-east5-b
+18:53:09Z tpu: flex-start request queued in us-east5-b
+
+Next: stage/forward.sh && source stage/demo.env && python3 stage/check.py --wait 1800

@@ -1,0 +1,13 @@
+{
+  "prompt": "Write a short paragraph about the ocean.",
+  "metric": "vllm:inter_token_latency_seconds",
+  "rows": [
+    {
+      "backend": "tpu",
+      "inter_token_intervals": 480.0,
+      "decode_seconds": 3.3316,
+      "server_decode_tok_s": 144.1,
+      "client_median_tok_s": 105.2
+    }
+  ]
+}

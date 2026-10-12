@@ -1,0 +1,57 @@
+{
+  "prompt": "Write a short paragraph about the ocean.",
+  "max_tokens": 100,
+  "summary": [
+    {
+      "backend": "gemini",
+      "label": "Gemini on Vertex AI",
+      "median_seconds": 1.029,
+      "median_tokens_per_second": 93.3,
+      "min_tps": 89.3,
+      "max_tps": 105.3,
+      "tokens": "94-96"
+    }
+  ],
+  "runs": [
+    {
+      "backend": "gemini",
+      "label": "Gemini on Vertex AI",
+      "text": "The ocean is a vast, mesmerizing wilderness that covers over seventy percent of the Earth's surface, holding the very cradle of life within its depths. From the sunlit, turquoise shallows teeming with vibrant coral reefs to the pitch-black, crushing abyss of the deep sea, it is a realm of endless mystery and wonder. Constantly in motion, its powerful tides and rhythmic waves connect distant shores, breathing life into our planet and inspiring a deep, primal awe in all who",
+      "completion_tokens": 96,
+      "seconds": 0.998,
+      "tokens_per_second": 96.2
+    },
+    {
+      "backend": "gemini",
+      "label": "Gemini on Vertex AI",
+      "text": "The ocean is a vast, mysterious realm that covers over seventy percent of the Earth's surface, holding the very cradle of life within its depths. From sunlit, turquoise shallows teeming with vibrant coral reefs to the pitch-black, crushing trenches of the abyss, it is a dynamic world driven by relentless tides and currents. This majestic expanse not only regulates our climate and produces the majority of the oxygen we breathe, but it also remains a profound source of wonder, concealing countless",
+      "completion_tokens": 96,
+      "seconds": 1.029,
+      "tokens_per_second": 93.3
+    },
+    {
+      "backend": "gemini",
+      "label": "Gemini on Vertex AI",
+      "text": "The ocean is a vast, mysterious realm that covers over seventy percent of the Earth's surface, holding ninety-nine percent of the planet's habitable space. From the sunlit, coral-filled shallows to the pitch-black, crushing depths of the abyssal plains, it is a dynamic world driven by powerful currents and ancient rhythms. This boundless expanse is not only the cradle of life on Earth, producing the majority of the oxygen we breathe, but also a breathtaking",
+      "completion_tokens": 96,
+      "seconds": 0.912,
+      "tokens_per_second": 105.3
+    },
+    {
+      "backend": "gemini",
+      "label": "Gemini on Vertex AI",
+      "text": "The ocean is a vast, mesmerizing expanse that covers the majority of our planet, holding secrets in its dark, fathomless depths. From the sunlit, coral-rich shallows where vibrant marine life thrives to the mysterious midnight zones where strange creatures glow in the dark, it is a world of breathtaking beauty and immense power. Constantly shifting with the rhythm of the tides, the ocean not only sustains countless ecosystems, but also beats as the blue heart of the Earth.",
+      "completion_tokens": 94,
+      "seconds": 1.04,
+      "tokens_per_second": 90.3
+    },
+    {
+      "backend": "gemini",
+      "label": "Gemini on Vertex AI",
+      "text": "The ocean is a vast, mysterious realm that covers over seventy percent of the Earth's surface, holding ninety-nine percent of its habitable space. From the sunlit, vibrant coral reefs swarming with colorful marine life to the pitch-black, freezing depths of the abyssal trenches, it is a world of breathtaking extremes. This endless expanse of salt water regulates our climate, produces most of the oxygen we breathe, and connects distant continents, remaining one of humanity's greatest",
+      "completion_tokens": 96,
+      "seconds": 1.075,
+      "tokens_per_second": 89.3
+    }
+  ]
+}

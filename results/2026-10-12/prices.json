@@ -1,0 +1,155 @@
+{
+  "fetched": "2026-10-12T19:57:57+00:00",
+  "rates": {
+    "gce_core": {
+      "sku": "G2 Instance Core running in Montreal",
+      "region": "northamerica-northeast1",
+      "unit": "h",
+      "usd": 0.02751452
+    },
+    "gce_ram": {
+      "sku": "G2 Instance Ram running in Montreal",
+      "region": "northamerica-northeast1",
+      "unit": "GiBy.h",
+      "usd": 0.003223414
+    },
+    "gce_l4": {
+      "sku": "Nvidia L4 GPU running in Montreal",
+      "region": "northamerica-northeast1",
+      "unit": "h",
+      "usd": 0.6166603
+    },
+    "vertex_core": {
+      "sku": "Vertex AI: Online/Batch Prediction G2 Predefined Instance Core running in Iowa",
+      "region": "us-central1",
+      "unit": "h",
+      "usd": 0.02874
+    },
+    "vertex_ram": {
+      "sku": "Vertex AI: Online/Batch Prediction G2 Predefined Instance Ram running in Iowa",
+      "region": "us-central1",
+      "unit": "GiBy.h",
+      "usd": 0.00337
+    },
+    "vertex_l4": {
+      "sku": "Vertex AI: Online/Batch Prediction Nvidia L4 GPU running in Iowa",
+      "region": "us-central1",
+      "unit": "h",
+      "usd": 0.64405
+    },
+    "vertex_fee_core": {
+      "sku": "Vertex AI: Online/Batch Prediction Management fee on G2 Predefined Instance Core in Iowa",
+      "region": "us-central1",
+      "unit": "h",
+      "usd": 0.0037487
+    },
+    "vertex_fee_ram": {
+      "sku": "Vertex AI: Online/Batch Prediction Management fee on G2 Predefined Instance RAM in Iowa",
+      "region": "us-central1",
+      "unit": "GiBy.h",
+      "usd": 0.0004396
+    },
+    "vertex_fee_l4": {
+      "sku": "Vertex AI: Online/Batch Prediction Management fee on NVIDIA L4 in Iowa",
+      "region": "us-central1",
+      "unit": "h",
+      "usd": 0.0840065
+    },
+    "run_cpu": {
+      "sku": "Services CPU (Instance-based billing) in us-east4",
+      "region": "us-east4",
+      "unit": "s",
+      "usd": 1.8e-05
+    },
+    "run_mem": {
+      "sku": "Services Memory (Instance-based billing) in us-east4",
+      "region": "us-east4",
+      "unit": "GiBy.s",
+      "usd": 2e-06
+    },
+    "run_l4": {
+      "sku": "NVIDIA L4 GPU with no zonal redundancy in us-east4",
+      "region": "us-east4",
+      "unit": "s",
+      "usd": 0.0001867
+    },
+    "gke_node_core": {
+      "sku": "G2 Instance Core running in Americas",
+      "region": "us-central1",
+      "unit": "h",
+      "usd": 0.024988212
+    },
+    "gke_node_ram": {
+      "sku": "G2 Instance Ram running in Americas",
+      "region": "us-central1",
+      "unit": "GiBy.h",
+      "usd": 0.002927448
+    },
+    "gke_node_l4": {
+      "sku": "Nvidia L4 GPU running in Americas",
+      "region": "us-central1",
+      "unit": "h",
+      "usd": 0.560040239
+    },
+    "gke_prem_cpu": {
+      "sku": "Autopilot Accelerator CPU Premium (us-central1)",
+      "region": "us-central1",
+      "unit": "h",
+      "usd": 3e-06
+    },
+    "gke_prem_mem": {
+      "sku": "Autopilot Accelerator Memory Premium (us-central1)",
+      "region": "us-central1",
+      "unit": "GiBy.h",
+      "usd": 0.00035
+    },
+    "gke_prem_l4": {
+      "sku": "Autopilot L4 Premium (us-central1)",
+      "region": "us-central1",
+      "unit": "h",
+      "usd": 6.7e-05
+    },
+    "gke_cluster": {
+      "sku": "Autopilot Kubernetes Clusters",
+      "region": "global",
+      "unit": "h",
+      "usd": 0.1
+    },
+    "tpu_ondemand": {
+      "sku": "TpuV5e running in Las Vegas",
+      "region": "us-west4",
+      "unit": "h",
+      "usd": 1.2
+    },
+    "tpu_flex": {
+      "sku": "DWS Defined Duration V5e running in Las Vegas",
+      "region": "us-west4",
+      "unit": "h",
+      "usd": 0.6
+    },
+    "gemini_in": {
+      "sku": "Gemini 3.5 Flash Lite Global Text Input - Predictions",
+      "region": "global",
+      "unit": "count",
+      "usd": 3e-07
+    },
+    "gemini_out": {
+      "sku": "Gemini 3.5 Flash Lite Global Text Output - Predictions",
+      "region": "global",
+      "unit": "count",
+      "usd": 2.5e-06
+    },
+    "maas_in": {
+      "sku": "Cloud Vertex AI Model Garden Model as a Service Gemma-4 Input Token",
+      "region": "global",
+      "unit": "count",
+      "usd": 1.5e-07
+    },
+    "maas_out": {
+      "sku": "Cloud Vertex AI Model Garden Model as a Service Gemma-4 Output Token",
+      "region": "global",
+      "unit": "count",
+      "usd": 6e-07
+    }
+  }
+}

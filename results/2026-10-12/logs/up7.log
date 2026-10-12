@@ -1,0 +1,7 @@
+18:49:01Z run: deploying strands-demo-run in us-east4
+Service [[1mstrands-demo-run[m] revision [[1mstrands-demo-run-00004-w2r[m] has been deployed and is serving [1m100[m percent of traffic.
+Service URL: [1mhttps://strands-demo-run-1056842563084.us-east4.run.app[m
+Proxy locally with: gcloud run services proxy strands-demo-run --region us-east4 --project comglitn
+18:55:35Z run: deployed
+
+Next: stage/forward.sh && source stage/demo.env && python3 stage/check.py --wait 1800

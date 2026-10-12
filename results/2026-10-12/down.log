@@ -1,0 +1,23 @@
+WARNING: The following filter keys were not present in any resource : name
+20:48:19Z run: deleting strands-demo-run
+20:48:19Z run: deleting strands-demo-run-cache
+20:48:19Z run: deleting strands-demo-run-eager
+WARNING: The following filter keys were not present in any resource : labels.managed-by
+Deleting [strands-demo-run]...
+Deleting [strands-demo-run-cache]...
+Deleting [strands-demo-run-eager]...
+20:48:20Z run: deleting gs://comglitn-strands-demo-cache
+..............done.
+..............done.
+Deleted service [strands-demo-run].
+Deleted service [strands-demo-run-cache].
+................done.
+Deleted service [strands-demo-run-eager].
+
+Sweep (anything listed here is still billing):
+WARNING: The following filter keys were not present in any resource : labels.managed-by
+  gce debian13	us-west2-b	RUNNING
+  tpu-queued jax-gemma4-qr	SUSPENDED
+  tpu-queued torchtpu-v5e1-qr	SUSPENDED
+WARNING: The following filter keys were not present in any resource : metadata.labels.managed-by
+(sweep done)

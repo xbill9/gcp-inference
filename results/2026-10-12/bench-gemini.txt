@@ -1,0 +1,5 @@
+Direct use of automatic function calling (AFC) in Models.generate_content is not recommended. Instead, we recommend to use AFC in Chat.send_message. Similarly, direct use of AFC in Models.generate_content_stream is not recommended. Instead, we recommend to use AFC in Chat.send_message_stream.
+Prompt: 'Write a short paragraph about the ocean.', max_tokens=100, 5 repeats per backend
+
+backend     median s  median tok/s  tok/s range     tokens
+gemini         1.029          93.3    89.3-105.3    94-96

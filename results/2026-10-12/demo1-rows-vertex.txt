@@ -1,0 +1,27 @@
+Question: How many of the ids are 10 or more? Answer with the number.
+Ids: [0, 2, 3, 20, 21, 22, 23, 10, 11, 12, 13]
+True answer: 8  tools: rows
+
+  vertex     run 1/20  ok   quoted=8  filters=[]  1.93s
+  vertex     run 2/20  ok   quoted=8  filters=[]  1.41s
+  vertex     run 3/20  ok   quoted=8  filters=[]  1.43s
+  vertex     run 4/20  ok   quoted=8  filters=[]  1.39s
+  vertex     run 5/20  ok   quoted=8  filters=[]  1.33s
+  vertex     run 6/20  ok   quoted=8  filters=[]  1.36s
+  vertex     run 7/20  ok   quoted=8  filters=[]  1.41s
+  vertex     run 8/20  ok   quoted=8  filters=[]  1.27s
+  vertex     run 9/20  ok   quoted=8  filters=[]  1.34s
+  vertex     run 10/20  ok   quoted=8  filters=[]  1.43s
+  vertex     run 11/20  ok   quoted=8  filters=[]  2.21s
+  vertex     run 12/20  ok   quoted=8  filters=[]  1.38s
+  vertex     run 13/20  ok   quoted=8  filters=[]  1.41s
+  vertex     run 14/20  ok   quoted=8  filters=[]  1.38s
+  vertex     run 15/20  ok   quoted=8  filters=[]  1.41s
+  vertex     run 16/20  ok   quoted=8  filters=[]  1.29s
+  vertex     run 17/20  ok   quoted=8  filters=[]  1.34s
+  vertex     run 18/20  ok   quoted=8  filters=[]  1.35s
+  vertex     run 19/20  ok   quoted=8  filters=[]  1.44s
+  vertex     run 20/20  ok   quoted=8  filters=[]  1.36s
+
+backend     runs  correct  right-filter  errors  median s  filters sent
+vertex        20   20/20              -       0      1.39  -
