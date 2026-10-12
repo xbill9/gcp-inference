@@ -46,6 +46,9 @@ PROMPTS = {
     "gce": ("1:1", "A single isometric server box with its lid lifted, showing one GPU card inside, on a platform."),
     "gke": ("1:1", "Three isometric server boxes connected in a ring by a ship's wheel shape on the platform, the "
             "front box holding a glowing GPU card, the others plain."),
+    "tpu-queue": ("1:1", "A square isometric accelerator chip with pins sitting behind a closed gate on a platform, "
+                  "with a numbered ticket dispenser and a small hourglass beside the gate; most of the parking bays "
+                  "around it are empty and marked with small red discs, one bay is green."),
     "tpu": ("1:1", "A large square isometric accelerator chip with pins on a circuit board, a grid of small cubes on "
             "its surface, glowing blue and green traces running out from it."),
 }
