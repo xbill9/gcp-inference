@@ -1,0 +1,34 @@
+# vLLM on one NVIDIA L4 in a GKE Autopilot cluster. stage/up.sh fills in IMAGE and REPACK.
+# Autopilot provisions the GPU node when this Pod is scheduled; nothing is exposed outside
+# the cluster. stage/forward.sh reaches it with kubectl port-forward.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vllm
+  labels: {app: vllm, managed-by: strands-demo}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: vllm}}
+  template:
+    metadata:
+      labels: {app: vllm}
+    spec:
+      nodeSelector:
+        cloud.google.com/gke-accelerator: nvidia-l4
+      containers:
+        - name: vllm
+          image: IMAGE
+          args: ["--model", "REPACK", "--served-model-name", "gemma", "--max-model-len", "8192",
+                 "--gpu-memory-utilization", "0.90", "--enable-auto-tool-choice", "--tool-call-parser", "gemma4"]
+          env: [{name: VLLM_ENABLE_CUDA_COMPATIBILITY, value: "0"}]  # see COMPAT in stage/up.sh
+          ports: [{containerPort: 8000}]
+          resources:
+            requests: {cpu: "4", memory: 16Gi, ephemeral-storage: 40Gi, nvidia.com/gpu: "1"}
+            limits: {cpu: "4", memory: 16Gi, ephemeral-storage: 40Gi, nvidia.com/gpu: "1"}
+          readinessProbe:
+            httpGet: {path: /health, port: 8000}
+            periodSeconds: 10
+          volumeMounts: [{name: shm, mountPath: /dev/shm}]
+      volumes:
+        - name: shm
+          emptyDir: {medium: Memory, sizeLimit: 2Gi}

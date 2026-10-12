@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.env
+stage/demo.env
+stage/.forwards.pid
+stage/.fwd-*.log
+stage/up.log
+stage/.up.t0
+stage/up*.log
+stage/vertex*.log
+stage/.fwd-*.log
