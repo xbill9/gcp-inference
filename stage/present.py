@@ -4,7 +4,7 @@ Run it in the terminal you will show, next to the Google Slides deck:
 
     source stage/demo.env
     python3 stage/present.py              # from slide 1
-    python3 stage/present.py --start 27   # pick up at the Strands section
+    python3 stage/present.py --start 30   # pick up at the Strands section
     python3 stage/present.py --list       # print every cue and command, run nothing
 
 Keys (type the letter, then Enter):
@@ -30,19 +30,14 @@ REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, REPO)
 
 DECK = "https://docs.google.com/presentation/d/11qC6IwhqEEtOFqmQH3l4f0XGUbokoQi9NkeMN5F4K_Q/edit"
-# Google Slides object id of each slide, in deck order (slide N is SLIDE_IDS[N - 1]). Ids were
-# fixed when each slide was made, so they no longer follow the slide numbers.
-SLIDE_IDS = [
-    "sl_01", "sl_02", "sl_03", "sl_04", "sl_05", "sl_prec", "sl_mem", "sl_06",
-    "sl_07", "sl_08", "sl_09", "sl_10", "sl_11", "sl_12", "sl_smi", "sl_13",
-    "sl_14", "sl_15", "sl_l4", "sl_16", "sl_arm", "sl_17", "sl_18", "sl_19",
-    "sl_20", "sl_why", "sl_21", "sl_22", "sl_23", "sl_24", "sl_25", "sl_26",
-    "sl_27", "sl_28", "sl_29", "sl_30",
-]
+# Google Slides object id of each slide, in deck order (slide N is SLIDE_IDS[N - 1]), is listed after
+# CUES. Ids were fixed when each slide was made, so they no longer follow the slide numbers.
 
 
 def link(n: int) -> str:
     return f"{DECK}#slide=id.{SLIDE_IDS[n - 1]}"
+
+
 RECORDED = "results/2026-10-12"
 BOLD, DIM, GREEN, YELLOW, RED, RESET = "\033[1m", "\033[2m", "\033[32m", "\033[33m", "\033[31m", "\033[0m"
 
@@ -54,7 +49,7 @@ def ask(backend: str) -> dict:
 
 # (slide, title, minutes, notes, commands)
 CUES = [
-    (1, "Inference on Google Cloud", 1.0,
+    (1, "Inference on GCP", 1.0,
      ["Seven ways to serve a model on Google Cloud, one Strands agent over all of them."], []),
     (2, "About me", 1.0, ["GDE Cloud and AI/ML, AWS Community Builder."], []),
     (3, "Where to find me", 0.5, ["Everything today is on GitHub and dev.to."], []),
@@ -62,90 +57,103 @@ CUES = [
      ["Hosted API, managed endpoint, serverless GPU, your GPU, Google's chip.",
       "Grading and timing happen in code, never in the model."], []),
     (5, "The Seven Backends", 2.0,
-     ["Four L4s with the same checkpoint and the same vLLM image as the AWS run.",
+     ["Four L4s with the checkpoint and vLLM image of the AWS run.",
       "The TPU serves the bf16 checkpoint with vLLM TPU, tool calls included."], []),
     (6, "Precision: What You Trade", 2.0,
-     ["Memory and quality are properties of the model; the right panel is the chip.",
-      "TPU v6e runs int8 at twice its bf16 rate; fp8 at the bf16 rate. No TPU page lists int4."], []),
-    (7, "Strategies", 0.5, ["Four habits that decided whether a run happened at all."], []),
-    (8, "Quota Does Not Mean Availability", 2.5,
+     ["Memory and quality belong to the model; the right panel is the chip.",
+      "TPU v6e runs int8 at twice its bf16 rate and fp8 at the bf16 rate. No TPU page lists int4."], []),
+    (7, "Memory and Bandwidth Across Google Cloud", 1.5,
+     ["v5e reads bf16 at 800 GiB/s; the L4s read 4-bit at 300 GB/s. Both decode at 140-144 tok/s on the server."], []),
+    (8, "Strategies", 0.5, ["Four habits that decided whether a run happened at all."], []),
+    (9, "Quota Does Not Mean Availability", 2.5,
      ["13 zones in 5 US regions said STOCKOUT for one L4, with 16 L4s of quota in each.",
       "TPU v6e: refused everywhere. v5e flex-start: a node in 22 seconds."],
      [{"cmd": "grep -E 'no capacity|launched|flex-start' stage/up.log", "recorded": f"{RECORDED}/capacity.txt"}]),
-    (9, "Pin the Image, Then Read the Driver", 2.0,
+    (10, "Pin the Image, Read the Driver", 2.0,
      ["The -cu129 build of vLLM 0.30.0 dies at import everywhere; the default build serves.",
       "Driver 580 on Cloud Run and GKE runs CUDA 13 natively: leave forward-compat off."], []),
-    (10, "Check Your Numbers, Verify Results", 2.0,
+    (11, "Check Your Numbers, Verify Results", 2.0,
      ["The grader read '8 ids are 10 or more' as 10 until it dropped restated thresholds.",
-      "One GPU, 90 to 119 tok/s from the client; 140 to 143 on the server. The difference is the network."], []),
-    (11, "No Public Ports, Still Reachable", 1.5,
+      "One GPU type, 90 to 119 tok/s from the client; 140 to 143 on the server. The difference is the network."], []),
+    (12, "No Public Ports, Still Reachable", 1.5,
      ["IAP tunnel, kubectl port-forward, SSH forward, Cloud Run with an identity token.",
       "This project's default network is legacy; GKE needed the VPC."], []),
-    (12, "Hosted: Gemini and Gemma MaaS", 0.5, [], []),
-    (13, "Gemini: Nothing to Start", 2.0,
+    (13, "Hosted: Gemini and Gemma MaaS", 0.5, [], []),
+    (14, "Gemini: Nothing to Start", 2.0,
      ["A model id and a role. 20 of 20 on both tool sets, 2.95 s per agent run."],
      [ask("gemini")]),
-    (14, "Gemma 4 MaaS: An Open Model, Serverless", 2.5,
+    (15, "Gemma 4 MaaS: Open, Serverless", 2.5,
      ["Experimental, global only, USD 0.60 per million output tokens.",
       "Counting the rows itself, it said 9 in 19 of 20 runs. With the engine, 8."],
      [ask("maas")]),
-    (15, "Managed: Vertex AI and Cloud Run", 0.5, [], []),
-    (16, "Vertex AI Endpoint: Your vLLM, Managed", 2.5,
+    (16, "Managed: Vertex AI and Cloud Run", 0.5, [], []),
+    (17, "Vertex AI: You Bring the Container", 1.5,
+     ["Upload a model, create an endpoint, deploy onto g2-standard-4 with an L4."], []),
+    (18, "Vertex AI: Your vLLM, Managed", 2.0,
      ["Docker Hub through an Artifact Registry proxy; 24.4 minutes to deploy.",
       "Shared endpoint: rawPredict, 60-second timeout, no streaming."],
      [ask("vertex")]),
-    (17, "Cloud Run GPU: An L4 That Scales to Zero", 3.0,
+    (19, "Cloud Run: An L4 That Scales to Zero", 3.0,
      ["6.6 minutes from deploy to serving. Billed per second while an instance exists.",
       "Server-side decode equals the VM's: the GPU is the same."],
      [ask("cloudrun")]),
-    (18, "From Zero, the First Request Waits Minutes", 3.0,
+    (20, "From Zero, the First Request Waits Minutes", 3.0,
      ["The request that wakes the service is held, then answered; others get a 429.",
-      "torch.compile is two of those minutes; a warm compile cache cuts it to 9 seconds."],
+      "torch.compile is two of those minutes; a warm compile cache cuts it to 6 seconds."],
      [{"cmd": "cat results/2026-10-12/coldstart-all.txt", "recorded": f"{RECORDED}/coldstart-all.txt"}]),
-    (19, "GPUs: Compute Engine and GKE", 0.5, [], []),
-    (20, "Compute Engine g2: vLLM on an NVIDIA L4", 2.5,
+    (21, "GPUs: Compute Engine and GKE", 0.5, [], []),
+    (22, "Compute Engine: vLLM on an L4", 2.5,
      ["9.6 minutes launch to ready, in Toronto after Montreal filled up.",
       "143.1 tok/s on the server; 94.3 through the IAP tunnel."],
      [ask("gce")]),
-    (21, "NVIDIA L4: The GPU in Four of Seven Backends", 1.5,
+    (23, "NVIDIA L4: The GPU in Four of Seven Backends", 1.5,
      ["Ada Lovelace, compute capability 8.9, 24 GB at 300 GB/s."], []),
-    (22, "GKE Autopilot: A Pod Asks, a Node Appears", 2.5,
+    (24, "GKE: A Pod Asks, a Node Appears", 2.5,
      ["The Pod asked for 4 vCPU and 16 GiB; Autopilot made a g2-standard-8.",
       "Cheapest L4 per token at 16 in flight: USD 0.203 per million."],
      [ask("gke")]),
-    (23, "Google Silicon: Cloud TPU", 0.5, [], []),
-    (24, "TPU v5e: vLLM, Tool Calls and All", 3.0,
+    (25, "Google Silicon: Cloud TPU", 0.5, [], []),
+    (26, "TPU v5e: vLLM, Tool Calls and All", 3.0,
      ["vllm/vllm-tpu, same release as the GPUs; 6.5 minutes of XLA compilation at start.",
       "20 of 20 with tool calls. 144.1 tok/s on the server, bf16."],
      [ask("tpu")]),
-    (25, "The Cloud TPU API Is Frozen", 1.5,
+    (27, "The Cloud TPU API Is Frozen", 1.5,
      ["TPU7x and later: Compute Engine or GKE only. v5e stays on the TPU API."], []),
-    (26, "One Strands Agent", 0.5, [], []),
-    (27, "One Agent, Two Model Classes", 2.0,
+    (28, "vLLM on TPU Ships With the GPU Releases", 1.0,
+     ["v0.31.0 on Docker Hub for both, two days apart."], []),
+    (29, "TPU's Hard Part: Getting One", 2.0,
+     ["Serving was easy. Capacity was the work: v6e nowhere, v5e flex-start in 22 seconds."], []),
+    (30, "One Strands Agent", 0.5, [], []),
+    (31, "One Agent, Two Model Classes", 2.0,
      ["GeminiModel for Gemini; OpenAIModel with a base_url for the other six.",
       "Vertex needs rawPredict and stream=False; Cloud Run an identity token."], []),
-    (28, "Demo 1: Every Backend Sent the Right Filter", 4.0,
+    (32, "Demo 1: Counting Itself, Gemma MaaS Said 9", 4.0,
      ["Eleven ids; how many are 10 or more? The answer is 8.",
       "Then the contrast: --tools rows hands the model the ids to count itself."],
      [{"cmd": "python3 demo1_counting.py --runs 3", "recorded": f"{RECORDED}/demo1-engine-gemini.txt"},
       {"cmd": "python3 demo1_counting.py --runs 3 --tools rows", "recorded": f"{RECORDED}/demo1-rows-maas.txt"}]),
-    (29, "Demo 2: TPU and GKE Answered in About 0.2 s", 3.0,
+    (33, "Demo 2: TPU and GKE Answered in About 0.2 s", 3.0,
      ["A Gemini agent asks every backend; scoreboard() sorts in code.",
       "The [harness] line lists any backend the agent skipped."],
      [{"cmd": "python3 demo2_orchestrator.py", "recorded": f"{RECORDED}/demo2-run1.txt"}]),
-    (30, "Same Silicon Speed, Different Paths", 3.0,
+    (34, "Same Silicon Speed, Different Paths", 3.0,
      ["Client tok/s includes the network; server tok/s is vLLM's own clock."],
      [{"cmd": "python3 bench_chat.py --repeats 3", "recorded": f"{RECORDED}/bench-cloudrun.txt"}]),
-    (31, "At 16 in Flight, Self-Hosting Beats Per-Token", 2.0,
+    (35, "At 16 in Flight, Self-Hosting Beats Per-Token", 2.0,
      ["TPU v5e flex-start USD 0.138 per million at 16 in flight; Gemma MaaS 0.60, Gemini 2.50.",
-      "One request at a time, every L4 costs more per token than Gemini."], []),
-    (32, "So, Which One?", 2.5,
+      "One request at a time, every L4 costs about what Gemini costs per token."], []),
+    (36, "So, Which One?", 2.5,
      ["Gemini first; Cloud Run for your weights at low traffic; GKE or a VM when it is busy; TPU when you can get one."], []),
-    (33, "Clean Up Two Projects", 1.5,
+    (37, "Clean Up Two Projects", 1.5,
      ["stage/down.sh deletes everything and sweeps for leftovers. Run it after the talk."], []),
-    (34, "Links", 1.0, ["Repo, rigs, write-up."], []),
-    (35, "Questions", 5.0, [], []),
+    (38, "Links", 1.0, ["Repo, rigs, write-up."], []),
+    (39, "Questions", 5.0, [], []),
 ]
+SLIDE_IDS = ["sl_01", "sl_02", "sl_03", "sl_04", "sl_05", "sl_prec", "sl_mem", "sl_06", "sl_07", "sl_08",
+             "sl_09", "sl_10", "sl_11", "sl_12", "sl_maas", "sl_mgd", "sl_smi", "sl_13", "sl_run", "sl_cold",
+             "sl_14", "sl_15", "sl_l4", "sl_16", "sl_17", "sl_18", "sl_19", "sl_20", "sl_why", "sl_21",
+             "sl_22", "sl_23", "sl_24", "sl_25", "sl_26", "sl_27", "sl_28", "sl_29", "sl_30"]
+assert len(SLIDE_IDS) == len(CUES)
 
 
 def configured() -> set:

@@ -94,6 +94,8 @@ A warm compile cache keeps full speed and takes about four minutes from zero; ea
 
 #### Bring the backends up
 
+The talk's slides are [on Google Slides](https://docs.google.com/presentation/d/11qC6IwhqEEtOFqmQH3l4f0XGUbokoQi9NkeMN5F4K_Q/edit); `python3 stage/present.py` steps through them with the live command for each slide.
+
 ```bash
 stage/up.sh 2>&1 | tee stage/up.log      # gce vertex gke run tpu; starts billing
 stage/forward.sh && source stage/demo.env # tunnels and port-forwards, writes the variables below
