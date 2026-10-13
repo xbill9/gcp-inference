@@ -23,6 +23,7 @@ The four L4 backends serve `xbill9/gemma-4-E2B-it-qat-q4_0-w4a16-ct-text-emb4` w
 | `parallel.py` | Aggregate throughput with 1, 4 and 16 requests in flight |
 | `cost.py` | USD per hour and per million output tokens, from Cloud Billing Catalog list prices and measured throughput |
 | `results/summarize.py` | The demo 1 and bench tables, computed from a results directory |
+| `mcp_server.py` | An MCP server over the same backends: list, health check, logs, ask, launch, tear down, and demo 1's `count_ids` engine |
 
 [docs/OPTIONS.md](docs/OPTIONS.md) reviews every GCP serving option, hosted to self-run, with Google's documentation for each fact.
 
@@ -114,7 +115,7 @@ Two settings this run depends on:
 #### Install
 
 ```bash
-pip install 'strands-agents[openai,gemini]' google-genai
+pip install 'strands-agents[openai,gemini]' google-genai mcp
 ```
 
 #### Configure
@@ -130,6 +131,34 @@ Each backend is turned on by its variable; unset means skipped. `BACKENDS=gemini
 | `GKE_URL` | GKE | `http://localhost:8003/v1` |
 | `GCE_URL` | Compute Engine | `http://localhost:8001/v1` |
 | `TPU_URL` | Cloud TPU | `http://localhost:8005/v1` |
+
+#### MCP server
+
+`mcp_server.py` is the Google Cloud port of the [aws-inference-strands](https://github.com/xbill9/aws-inference-strands) server: the same tools and annotations, with `gcloud` and `kubectl` in place of boto3 and SSM. `.mcp.json` registers it for Claude Code as `strands-demo`; any MCP client can start it with `python3 mcp_server.py`.
+
+| Tool | Kind | What it does |
+|---|---|---|
+| `list_backends` | read-only | the Compute Engine VM, TPU VMs and queued resources, Cloud Run services, the GKE cluster and its `vllm` Deployment, and the Vertex AI endpoint, found by the `managed-by=strands-demo` label or name, and how many are billing |
+| `backend_health` | read-only | asks one backend for the capital of France and passes only on Paris |
+| `backend_logs` | read-only | the vLLM log of one backend |
+| `ask_backend` | read-only | one timed chat request, as `stage/ask.py`; uses the variables in `stage/demo.env` |
+| `count_ids` | read-only | demo 1's engine: exact count, minimum and maximum for `id <op> value` |
+| `launch_log` | read-only | tails `stage/up.log` or `stage/down.log` |
+| `launch_backends` | write | runs `stage/up.sh` in the background; billing starts |
+| `teardown` | destructive | runs `stage/down.sh` in the background |
+
+Each backend is reached its own way, and health checks and logs need no forward open:
+
+| Backend | `backend_health` | `backend_logs` |
+|---|---|---|
+| gce | on the VM, `gcloud compute ssh --tunnel-through-iap` | `docker logs vllm`, else the startup-script journal |
+| tpu | on the VM, `gcloud compute tpus tpu-vm ssh` | `docker logs vllm`, else the startup-script journal |
+| gke | in the Pod, `kubectl exec deploy/vllm` | `kubectl logs deploy/vllm`, else the Pod events |
+| cloudrun | HTTPS with an identity token | Cloud Logging, `cloud_run_revision` |
+| vertex | `:rawPredict` with an access token | Cloud Logging, `aiplatform.googleapis.com/Endpoint` |
+| gemini, maas | the Vertex AI API | none |
+
+Launch and teardown run the stage scripts, so both routes start and stop the same resources. With `--tools mcp`, demo 1 offers the agent only `count_ids` from this server and grades the calls it reads back from the agent's messages, so it is graded exactly as `--tools engine`.
 
 #### How the grading works
 
