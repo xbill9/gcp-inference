@@ -122,7 +122,9 @@ class CommandError(RuntimeError):
 
 
 def _run(*args: str, timeout: int = 120) -> str:
-    proc = subprocess.run(args, capture_output=True, text=True, timeout=timeout, check=False)
+    # stdin is the MCP pipe; a child must not inherit it (az blocks reading it; kubectl exec forwards it)
+    proc = subprocess.run(args, capture_output=True, text=True, timeout=timeout, check=False,
+                          stdin=subprocess.DEVNULL)
     if proc.returncode != 0:
         detail = (proc.stderr or proc.stdout).strip().splitlines()
         raise CommandError(f"{args[0]} {args[1]} exited {proc.returncode}: {' '.join(detail[-3:])[:600]}")
@@ -454,8 +456,8 @@ def count_ids(op: str, value: int) -> dict:
 def _background(script: str, args: list[str], log: str) -> str:
     path = os.path.join(HERE, "stage", log)
     with open(path, "w") as out:
-        proc = subprocess.Popen([os.path.join(HERE, "stage", script), *args], cwd=HERE, stdout=out,
-                                stderr=subprocess.STDOUT, start_new_session=True)
+        proc = subprocess.Popen([os.path.join(HERE, "stage", script), *args], cwd=HERE, stdin=subprocess.DEVNULL,
+                                stdout=out, stderr=subprocess.STDOUT, start_new_session=True)
     return f"started stage/{script} {' '.join(args)} (pid {proc.pid}); output in stage/{log}, read it with launch_log"
 
 
