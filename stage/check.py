@@ -9,6 +9,7 @@ engine tool. Exits 1 if anything failed, so it can gate the start of the demo.
 """
 
 import argparse
+import asyncio
 import os
 import sys
 import time
@@ -30,7 +31,7 @@ def check(b: backends.Backend) -> tuple[bool, str]:
         return False, f"chat answered {r['text'][:60]!r}"
     note = f"chat {r['seconds']}s"
     if b.tool_capable:
-        run = demo1_counting.run_once(b, "engine")
+        run = asyncio.run(demo1_counting.run_once(b, "engine"))
         if run["error"]:
             return False, f"{note}; tool run failed: {run['error'][:120]}"
         if not run["filters"]:

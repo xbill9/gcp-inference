@@ -47,7 +47,7 @@ read -r tname tzone < <(node)
 [ -n "${tzone:-}" ] || die "no TPU is up; run ./demo.sh first"
 echo "   TPU $tname in $tzone"
 
-say "3/5  Connecting to it over SSH (vLLM stays private on the TPU's port 8000)"
+say "3/5  Connecting to it over SSH (the demo reaches vLLM on the TPU's port 8000 through a tunnel)"
 for i in $(seq 10); do
   gcloud compute tpus tpu-vm ssh "$tname" --project "$TPU_PROJECT" --zone "$tzone" --quiet --command true \
     >/dev/null 2>&1 && { echo "   [$(elapsed)] SSH works"; break; }
