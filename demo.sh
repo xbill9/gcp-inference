@@ -80,7 +80,7 @@ cat <<EOF
 
 Done in $(elapsed). The TPU is still running and billing.
   Again:              ./demo.sh again
-  Talk to it:         run 'claude' in $(pwd) and approve the gcp-inference MCP server,
+  Talk to it:         run 'claude' in $(pwd) and approve the tpu-demo MCP server,
                       then ask "list my backends" or "ask the tpu backend for a haiku"
   Shut it all down:   ./demo.sh down
 EOF

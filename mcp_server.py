@@ -51,7 +51,7 @@ sys.path.insert(0, HERE)
 import backends
 import demo1_counting
 
-NAME = "gcp-inference"
+NAME = "tpu-demo"
 logging.basicConfig(level=logging.INFO, stream=sys.stderr)
 logger = logging.getLogger(NAME)
 

@@ -144,7 +144,7 @@ Each backend is turned on by its variable; unset means skipped. `BACKENDS=gemini
 
 #### MCP server
 
-`mcp_server.py` is the Google Cloud port of the [aws-inference-strands](https://github.com/xbill9/aws-inference-strands) server: the same tools and annotations, with `gcloud` and `kubectl` in place of boto3 and SSM. `.mcp.json` registers it for Claude Code as `gcp-inference`; any MCP client can start it with `python3 mcp_server.py`.
+`mcp_server.py` is the Google Cloud port of the [aws-inference-strands](https://github.com/xbill9/aws-inference-strands) server: the same tools and annotations, with `gcloud` and `kubectl` in place of boto3 and SSM. `.mcp.json` registers it for Claude Code as `tpu-demo`; any MCP client can start it with `python3 mcp_server.py`.
 
 | Tool | Kind | What it does |
 |---|---|---|
