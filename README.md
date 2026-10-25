@@ -93,6 +93,16 @@ A warm compile cache keeps full speed and takes about four minutes from zero; ea
 
 ---
 
+#### Quick demo: one TPU, one command
+
+```bash
+./demo.sh          # TPU v5e-1 flex-start, Gemma 4 E2B on vLLM, demo 1 over the MCP server
+./demo.sh again    # run the demo again on the TPU that is up
+./demo.sh down     # delete it
+```
+
+It prints each step as it goes, with vLLM's own log while the model loads. Then run `claude` in this directory and ask in plain words: "what's running?" (`list_backends`), "is the TPU healthy?" (`backend_health`), "show me the TPU's vLLM log" (`backend_logs`). The flex-start TPU stops by itself after 4 hours.
+
 #### Bring the backends up
 
 The talk's slides are [on Google Slides](https://docs.google.com/presentation/d/11qC6IwhqEEtOFqmQH3l4f0XGUbokoQi9NkeMN5F4K_Q/edit); `python3 stage/present.py` steps through them with the live command for each slide.

@@ -15,8 +15,15 @@
 set -uo pipefail
 
 PROJECT=${PROJECT:-comglitn}
-TPU_PROJECT=${TPU_PROJECT:-aisprint-491218}    # holds the v6e quota (TPU API, us-east5)
-TPU_ZONES=${TPU_ZONES:-us-east5-b us-east5-a us-east5-c}
+TPU_PROJECT=${TPU_PROJECT:-aisprint-491218}    # holds the TPU API quota
+# v5e-1 ("v5litepod-1" to the TPU API), straight to a flex-start request in us-west4-a: on
+# 2026-10-12 v6e-1 was refused in every zone and a v5e-1 flex-start request got a node in 22 s.
+# Flex-start stops by itself after 4 hours. For v6e on-demand first:
+#   TPU_ACCEL=v6e-1 TPU_RUNTIME=v2-alpha-tpuv6e TPU_ZONES="us-east5-b us-east5-a" TPU_FLEX_ZONE=us-east5-b
+TPU_ACCEL=${TPU_ACCEL:-v5litepod-1}
+TPU_RUNTIME=${TPU_RUNTIME:-v2-alpha-tpuv5-lite}
+TPU_ZONES=${TPU_ZONES:-}                       # on-demand zones to try before flex-start
+TPU_FLEX_ZONE=${TPU_FLEX_ZONE:-us-west4-a}
 GCE_ZONES=${GCE_ZONES:-us-east4-a us-east4-c us-east4-b us-central1-a us-central1-b us-central1-c}
 RUN_REGION=${RUN_REGION:-us-east4}
 VERTEX_REGION=${VERTEX_REGION:-us-central1}
@@ -151,6 +158,9 @@ tpu() {
   if gcloud compute tpus tpu-vm list --project "$TPU_PROJECT" --zone - --filter="name~$name" --format='value(name)' 2>/dev/null | grep -q .; then
     say "tpu: already up"; return 0
   fi
+  if gcloud alpha compute tpus queued-resources list --project "$TPU_PROJECT" --zone - --filter="name~$name" --format='value(name)' 2>/dev/null | grep -q .; then
+    say "tpu: flex-start request already queued"; return 0
+  fi
   ud=$(mktemp)
   cat > "$ud" <<UD
 #!/usr/bin/env bash
@@ -165,7 +175,7 @@ docker run -d --name vllm --restart unless-stopped --privileged --net=host \
 UD
   for zone in $TPU_ZONES; do
     out=$(gcloud compute tpus tpu-vm create "$name" --project "$TPU_PROJECT" --zone "$zone" \
-      --accelerator-type v6e-1 --version v2-alpha-tpuv6e \
+      --accelerator-type "$TPU_ACCEL" --version "$TPU_RUNTIME" \
       --metadata-from-file startup-script="$ud" --labels "$LABEL" 2>&1)
     rc=$?
     if [ $rc = 0 ]; then say "tpu: launched in $zone"; rm -f "$ud"; return 0; fi
@@ -177,15 +187,15 @@ UD
   done
   # No on-demand capacity anywhere: queue a flex-start (DWS) request, which draws on a separate
   # pool, stops by itself after 4 hours, and names its node <queued resource>-node.
-  zone=${TPU_FLEX_ZONE:-us-east5-b}
-  say "tpu: no on-demand capacity in any of: $TPU_ZONES; queueing a flex-start request in $zone"
+  zone=$TPU_FLEX_ZONE
+  say "tpu: queueing a $TPU_ACCEL flex-start request in $zone${TPU_ZONES:+ (no on-demand capacity in: $TPU_ZONES)}"
   out=$(gcloud alpha compute tpus queued-resources create "$name" --project "$TPU_PROJECT" --zone "$zone" \
-    --node-id "$name-node" --accelerator-type v6e-1 --runtime-version v2-alpha-tpuv6e \
+    --node-id "$name-node" --accelerator-type "$TPU_ACCEL" --runtime-version "$TPU_RUNTIME" \
     --provisioning-model flex-start --max-run-duration 4h --valid-until-duration 4h \
     --metadata-from-file startup-script="$ud" --labels "$LABEL" 2>&1)
   rc=$?; rm -f "$ud"
   [ $rc = 0 ] || { fail "tpu: flex-start request failed: $(echo "$out" | tail -1)"; return 1; }
-  say "tpu: flex-start request queued in $zone"
+  say "tpu: $TPU_ACCEL flex-start request queued in $zone"
 }
 
 want=${*:-gce vertex gke run tpu}

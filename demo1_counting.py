@@ -38,8 +38,14 @@ SYSTEM = ("You answer questions about a table of integer ids. Use the tools to l
           "table. End with a sentence that states the number.")
 
 
+def clean_op(op) -> str:
+    """Gemma 4 on vLLM TPU sends the operator inside its own quotes ('">="'); take the operator."""
+    return str(op).strip().strip("\"'").strip()
+
+
 def count(op: str, value: int) -> dict:
     """The engine: exact count, min and max of the ids matching `id <op> value`."""
+    op = clean_op(op)
     if op not in OPS:
         return {"error": f"op must be one of {sorted(OPS)}"}
     hit = [i for i in IDS if OPS[op](i, value)]
@@ -94,7 +100,8 @@ THRESHOLD = re.compile(r"(?:\b10\s+or\s+(?:more|greater|higher|above|larger)\b|(
 def grade(answer: str, calls: list, kind: str) -> dict:
     numbers = [int(n) for n in re.findall(r"\b\d+\b", THRESHOLD.sub(" ", answer))]
     correct = bool(numbers) and numbers[-1] == len(TRUTH)
-    counted = [c for c in calls if c["tool"] == "count_ids" and c.get("op") in OPS]
+    counted = [{**c, "op": clean_op(c.get("op"))} for c in calls if c["tool"] == "count_ids"]
+    counted = [c for c in counted if c["op"] in OPS]
     if kind == "rows":
         filter_ok = None
     else:
