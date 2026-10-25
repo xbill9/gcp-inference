@@ -137,18 +137,18 @@ Each backend is turned on by its variable; unset means skipped. `BACKENDS=gemini
 | `GEMINI_MODEL`, `GOOGLE_CLOUD_PROJECT` | Gemini (always on) | `gemini-3.5-flash-lite` |
 | `MAAS_MODEL` | Gemma MaaS | `google/gemma-4-26b-a4b-it-maas` |
 | `VERTEX_URL` | Vertex AI endpoint | `https://us-central1-aiplatform.googleapis.com/v1/projects/P/locations/us-central1/endpoints/ID` |
-| `RUN_URL` | Cloud Run | `https://strands-demo-run-....run.app/v1` |
+| `RUN_URL` | Cloud Run | `https://gcp-inference-run-....run.app/v1` |
 | `GKE_URL` | GKE | `http://localhost:8003/v1` |
 | `GCE_URL` | Compute Engine | `http://localhost:8001/v1` |
 | `TPU_URL` | Cloud TPU | `http://localhost:8005/v1` |
 
 #### MCP server
 
-`mcp_server.py` is the Google Cloud port of the [aws-inference-strands](https://github.com/xbill9/aws-inference-strands) server: the same tools and annotations, with `gcloud` and `kubectl` in place of boto3 and SSM. `.mcp.json` registers it for Claude Code as `strands-demo`; any MCP client can start it with `python3 mcp_server.py`.
+`mcp_server.py` is the Google Cloud port of the [aws-inference-strands](https://github.com/xbill9/aws-inference-strands) server: the same tools and annotations, with `gcloud` and `kubectl` in place of boto3 and SSM. `.mcp.json` registers it for Claude Code as `gcp-inference`; any MCP client can start it with `python3 mcp_server.py`.
 
 | Tool | Kind | What it does |
 |---|---|---|
-| `list_backends` | read-only | the Compute Engine VM, TPU VMs and queued resources, Cloud Run services, the GKE cluster and its `vllm` Deployment, and the Vertex AI endpoint, found by the `managed-by=strands-demo` label or name, and how many are billing |
+| `list_backends` | read-only | the Compute Engine VM, TPU VMs and queued resources, Cloud Run services, the GKE cluster and its `vllm` Deployment, and the Vertex AI endpoint, found by the `managed-by=gcp-inference` label or name, and how many are billing |
 | `backend_health` | read-only | asks one backend for the capital of France and passes only on Paris |
 | `backend_logs` | read-only | the vLLM log of one backend |
 | `ask_backend` | read-only | one timed chat request, as `stage/ask.py`; uses the variables in `stage/demo.env` |

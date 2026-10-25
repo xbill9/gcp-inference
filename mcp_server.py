@@ -51,7 +51,7 @@ sys.path.insert(0, HERE)
 import backends
 import demo1_counting
 
-NAME = "strands-demo"
+NAME = "gcp-inference"
 logging.basicConfig(level=logging.INFO, stream=sys.stderr)
 logger = logging.getLogger(NAME)
 
@@ -66,12 +66,12 @@ TPU_PROJECT = os.getenv("TPU_PROJECT", "aisprint-491218")
 RUN_REGION = os.getenv("RUN_REGION", "us-east4")
 VERTEX_REGION = os.getenv("VERTEX_REGION", "us-central1")
 GKE_REGION = os.getenv("GKE_REGION", "us-central1")
-LABEL = "managed-by=strands-demo"  # the label stage/up.sh puts on every resource
-GCE_NAME = os.getenv("GCE_NAME", "strands-demo-gce")
-TPU_NAME = "strands-demo-tpu"      # a flex-start node is strands-demo-tpu-node
-RUN_NAME = "strands-demo-run"
-GKE_NAME = "strands-demo-gke"
-VERTEX_NAME = "strands-demo-vertex"
+LABEL = "managed-by=gcp-inference"  # the label stage/up.sh puts on every resource
+GCE_NAME = os.getenv("GCE_NAME", "gcp-inference-gce")
+TPU_NAME = "gcp-inference-tpu"      # a flex-start node is gcp-inference-tpu-node
+RUN_NAME = "gcp-inference-run"
+GKE_NAME = "gcp-inference-gke"
+VERTEX_NAME = "gcp-inference-vertex"
 KUBE_CONTEXT = f"gke_{PROJECT}_{GKE_REGION}_{GKE_NAME}"
 
 BOX_BACKENDS = ["gce", "tpu", "gke"]            # a machine or Pod to run a command on
@@ -294,8 +294,8 @@ async def list_backends() -> str:
     """Every backend the demo uses and its state right now.
 
     Lists Compute Engine VMs, TPU VMs and queued resources, Cloud Run services, the GKE cluster
-    and its vllm Deployment, and Vertex AI endpoints, all found by the label managed-by=strands-demo
-    or the strands-demo names stage/up.sh gives them. Reports how many are billing now and which
+    and its vllm Deployment, and Vertex AI endpoints, all found by the label managed-by=gcp-inference
+    or the gcp-inference names stage/up.sh gives them. Reports how many are billing now and which
     backends ask_backend is configured for (from stage/demo.env, so stale once the forwards close).
     Counts are computed here.
     """
@@ -484,7 +484,7 @@ async def launch_backends(names: list[str] | None = None) -> str:
 @mcp.tool(title="Tear down every demo backend", annotations=DESTRUCTIVE)
 async def teardown() -> str:
     """Run stage/down.sh in the background: delete every VM, TPU, queued resource and Cloud Run
-    service labelled managed-by=strands-demo, the GKE cluster and the Vertex AI endpoint and model,
+    service labelled managed-by=gcp-inference, the GKE cluster and the Vertex AI endpoint and model,
     close the forwards, then sweep for anything still billing. Read the sweep with launch_log("down")."""
     try:
         return _background("down.sh", [], "down.log")

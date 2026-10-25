@@ -10,7 +10,7 @@
 # the AWS run (~/aws-inference-strands): the E2B QAT w4a16 repack, max-model-len 8192,
 # tool calls on. The TPU serves google/gemma-4-E2B-it in bf16 with vLLM's TPU image.
 #
-# Resources carry the label managed-by=strands-demo. One that already exists is left alone.
+# Resources carry the label managed-by=gcp-inference. One that already exists is left alone.
 # Each launch line is stamped with UTC time; stage/check.py stamps the first pass.
 set -uo pipefail
 
@@ -40,7 +40,7 @@ VLLM_IMAGE=${VLLM_IMAGE:-vllm/vllm-openai:v0.30.0}   # the image the AWS run use
 COMPAT=${COMPAT:-VLLM_ENABLE_CUDA_COMPATIBILITY=0}
 TPU_IMAGE=${TPU_IMAGE:-vllm/vllm-tpu:v0.30.0}
 VLLM_ARGS="--model $REPACK --served-model-name gemma --max-model-len 8192 --gpu-memory-utilization 0.90 --enable-auto-tool-choice --tool-call-parser gemma4"
-LABEL=managed-by=strands-demo
+LABEL=managed-by=gcp-inference
 here=$(cd "$(dirname "$0")" && pwd)
 
 say() { echo "$(date -u +%H:%M:%SZ) $*"; }
@@ -49,7 +49,7 @@ fail() { say "$*"; return 1; }
 gcloud auth print-access-token >/dev/null 2>&1 || { echo "gcloud is not logged in: run gcloud auth login"; exit 1; }
 
 gce() {
-  local name=${GCE_NAME:-strands-demo-gce} zone out ud
+  local name=${GCE_NAME:-gcp-inference-gce} zone out ud
   if gcloud compute instances list --project "$PROJECT" --filter="name=$name" --format='value(zone)' | grep -q .; then
     say "gce: already up"; return 0
   fi
@@ -84,7 +84,7 @@ UD
 }
 
 cloudrun() {
-  local name=strands-demo-run
+  local name=gcp-inference-run
   # A service whose last deploy failed is redeployed; one that is Ready is left alone.
   if [ "$(gcloud run services describe "$name" --project "$PROJECT" --region "$RUN_REGION" \
           --format='value(status.conditions[0].status)' 2>/dev/null)" = True ]; then
@@ -106,7 +106,7 @@ cloudrun() {
 vertex() {
   local ep model repo=dockerhub
   ep=$(gcloud ai endpoints list --project "$PROJECT" --region "$VERTEX_REGION" \
-       --filter="displayName=strands-demo-vertex" --format='value(name)' 2>/dev/null | head -1)
+       --filter="displayName=gcp-inference-vertex" --format='value(name)' 2>/dev/null | head -1)
   if [ -n "$ep" ]; then say "vertex: endpoint exists ($ep)"; return 0; fi
   # Vertex AI pulls only from Artifact Registry; a remote repository proxies Docker Hub. Kept between runs.
   gcloud artifacts repositories describe "$repo" --project "$PROJECT" --location "$VERTEX_REGION" >/dev/null 2>&1 ||
@@ -118,28 +118,28 @@ vertex() {
   curl -sf -o /dev/null -H "Authorization: Bearer $(gcloud auth print-access-token)" \
     -H "Accept: application/vnd.oci.image.index.v1+json,application/vnd.docker.distribution.manifest.list.v2+json,application/vnd.docker.distribution.manifest.v2+json" \
     "https://$VERTEX_REGION-docker.pkg.dev/v2/$PROJECT/$repo/$path/manifests/$tag" || { fail "vertex: cannot prime $VLLM_IMAGE through $repo"; return 1; }
-  gcloud ai models upload --project "$PROJECT" --region "$VERTEX_REGION" --display-name strands-demo-vertex \
+  gcloud ai models upload --project "$PROJECT" --region "$VERTEX_REGION" --display-name gcp-inference-vertex \
     --container-image-uri "$VERTEX_REGION-docker.pkg.dev/$PROJECT/$repo/$VLLM_IMAGE" \
     --container-args="$(echo "$VLLM_ARGS --port 8000" | tr ' ' ',')" --container-ports 8000 \
     --container-health-route /health --container-predict-route /v1/chat/completions \
     --container-shared-memory-size-mb 8192 --container-env-vars "$COMPAT" --labels "$LABEL" >/dev/null 2>&1 || { fail "vertex: model upload failed"; return 1; }
   # upload prints no id: take the newest model with this name.
-  model=$(gcloud ai models list --project "$PROJECT" --region "$VERTEX_REGION" --filter="displayName=strands-demo-vertex" \
+  model=$(gcloud ai models list --project "$PROJECT" --region "$VERTEX_REGION" --filter="displayName=gcp-inference-vertex" \
           --sort-by=~createTime --limit 1 --format='value(name)' 2>/dev/null)
   say "vertex: model uploaded (${model##*/})"
-  ep=$(gcloud ai endpoints create --project "$PROJECT" --region "$VERTEX_REGION" --display-name strands-demo-vertex \
+  ep=$(gcloud ai endpoints create --project "$PROJECT" --region "$VERTEX_REGION" --display-name gcp-inference-vertex \
        --labels "$LABEL" --format='value(name)')
   case "$ep" in projects/*) ;; *) fail "vertex: endpoint create failed"; return 1 ;; esac
   say "vertex: endpoint created ($ep); deploying on g2-standard-4 + L4"
   gcloud ai endpoints deploy-model "${ep##*/}" --project "$PROJECT" --region "$VERTEX_REGION" \
-    --model "${model##*/}" --display-name strands-demo-vertex --machine-type g2-standard-4 \
+    --model "${model##*/}" --display-name gcp-inference-vertex --machine-type g2-standard-4 \
     --accelerator type=nvidia-l4,count=1 --min-replica-count 1 --max-replica-count 1 2>&1 | tail -2
   [ "${PIPESTATUS[0]}" = 0 ] || { fail "vertex: deploy-model failed"; return 1; }
   say "vertex: deployed"
 }
 
 gke() {
-  local name=strands-demo-gke
+  local name=gcp-inference-gke
   if ! gcloud container clusters describe "$name" --project "$PROJECT" --region "$GKE_REGION" >/dev/null 2>&1; then
     say "gke: creating Autopilot cluster $name in $GKE_REGION"
     gcloud container clusters create-auto "$name" --project "$PROJECT" --region "$GKE_REGION" --network "$GKE_NETWORK" --subnetwork "$GKE_NETWORK" \
@@ -154,7 +154,7 @@ gke() {
 }
 
 tpu() {
-  local name=strands-demo-tpu zone out ud rc
+  local name=gcp-inference-tpu zone out ud rc
   if gcloud compute tpus tpu-vm list --project "$TPU_PROJECT" --zone - --filter="name~$name" --format='value(name)' 2>/dev/null | grep -q .; then
     say "tpu: already up"; return 0
   fi

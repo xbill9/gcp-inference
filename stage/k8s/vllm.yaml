@@ -5,7 +5,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: vllm
-  labels: {app: vllm, managed-by: strands-demo}
+  labels: {app: vllm, managed-by: gcp-inference}
 spec:
   replicas: 1
   selector: {matchLabels: {app: vllm}}

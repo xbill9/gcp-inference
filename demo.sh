@@ -3,7 +3,7 @@
 #
 #   ./demo.sh          # start the TPU (billing starts), wait for vLLM, run the demo over MCP
 #   ./demo.sh again    # run the demo again on the TPU that is already up
-#   ./demo.sh down     # delete the TPU and everything else labelled managed-by=strands-demo
+#   ./demo.sh down     # delete the TPU and everything else labelled managed-by=gcp-inference
 #
 # The TPU is a flex-start request, so it also stops by itself after 4 hours.
 set -uo pipefail
@@ -15,7 +15,7 @@ die() { echo "!! $*" >&2; exit 1; }
 
 node() {   # name and zone of the READY TPU VM, if any
   gcloud compute tpus tpu-vm list --project "$TPU_PROJECT" --zone - \
-    --filter="name~strands-demo-tpu AND state=READY" --format='value(name.basename(),name.segment(3))' 2>/dev/null | head -1
+    --filter="name~gcp-inference-tpu AND state=READY" --format='value(name.basename(),name.segment(3))' 2>/dev/null | head -1
 }
 
 case "${1:-up}" in
@@ -29,7 +29,7 @@ case "${1:-up}" in
     for _ in $(seq 120); do
       [ -n "$(node)" ] && break
       st=$(gcloud alpha compute tpus queued-resources list --project "$TPU_PROJECT" --zone - \
-        --filter="name~strands-demo-tpu" --format='value(state.state)' 2>/dev/null | head -1)
+        --filter="name~gcp-inference-tpu" --format='value(state.state)' 2>/dev/null | head -1)
       case "$st" in FAILED|SUSPENDED) die "the TPU request ended in state $st; run ./demo.sh down and try again" ;; esac
       case "$st" in
         WAITING_FOR_RESOURCES) st="queued, waiting for a free TPU" ;;
@@ -80,7 +80,7 @@ cat <<EOF
 
 Done in $(elapsed). The TPU is still running and billing.
   Again:              ./demo.sh again
-  Talk to it:         run 'claude' in $(pwd) and approve the strands-demo MCP server,
+  Talk to it:         run 'claude' in $(pwd) and approve the gcp-inference MCP server,
                       then ask "list my backends" or "ask the tpu backend for a haiku"
   Shut it all down:   ./demo.sh down
 EOF
