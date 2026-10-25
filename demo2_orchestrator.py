@@ -1,4 +1,4 @@
-"""Demo 2: one Strands agent on Gemini that calls every backend as a tool.
+"""Demo 2: one Google ADK agent on Gemini that calls every backend as a tool.
 
 Every backend can also drive an agent itself (demo 1); here they are the tools.
 The agent gets one tool per configured backend, `ask_<name>(prompt)`, plus
@@ -13,6 +13,7 @@ agent's job is to call the tools and quote the table, not to compute or rank.
 """
 
 import argparse
+import asyncio
 import json
 import sys
 
@@ -25,8 +26,6 @@ SYSTEM = ("You coordinate several model backends. When asked, put the user's que
 
 
 def build(results: list, orchestrator: backends.Backend):
-    from strands import Agent, tool
-
     def make_ask(b: backends.Backend):
         def ask(prompt: str) -> dict:
             try:
@@ -38,9 +37,8 @@ def build(results: list, orchestrator: backends.Backend):
         ask.__name__ = f"ask_{b.name}"
         ask.__doc__ = (f"Ask {b.label} ({b.model}) one question and return its answer with "
                        f"measured seconds and tokens per second.\n\nArgs:\n    prompt: the question")
-        return tool(ask)
+        return ask
 
-    @tool
     def scoreboard() -> str:
         """Return the measured results of every ask_ call so far as a table, fastest first."""
         ok = sorted((r for r in results if "error" not in r), key=lambda r: r["seconds"])
@@ -50,8 +48,7 @@ def build(results: list, orchestrator: backends.Backend):
         return "\n".join(lines)
 
     tools = [make_ask(b) for b in backends.configured()] + [scoreboard]
-    return Agent(model=backends.strands_model(orchestrator), system_prompt=SYSTEM, tools=tools,
-                 callback_handler=None)
+    return backends.adk_agent(orchestrator, SYSTEM, tools, max_tokens=2048)
 
 
 def main() -> int:
@@ -67,8 +64,9 @@ def main() -> int:
 
     results: list = []
     agent = build(results, orchestrator)
-    reply = agent(f"Ask every backend this question and show the scoreboard: {a.question}")
-    print(str(reply).strip())
+    reply, _ = asyncio.run(backends.run_agent(
+        agent, f"Ask every backend this question and show the scoreboard: {a.question}"))
+    print(reply.strip())
 
     asked = {r["backend"] for r in results}
     missed = [b.name for b in found if b.name not in asked]

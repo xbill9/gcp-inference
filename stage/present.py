@@ -4,7 +4,7 @@ Run it in the terminal you will show, next to the Google Slides deck:
 
     source stage/demo.env
     python3 stage/present.py              # from slide 1
-    python3 stage/present.py --start 30   # pick up at the Strands section
+    python3 stage/present.py --start 30   # pick up at the agent section
     python3 stage/present.py --list       # print every cue and command, run nothing
 
 Keys (type the letter, then Enter):
@@ -50,7 +50,7 @@ def ask(backend: str) -> dict:
 # (slide, title, minutes, notes, commands)
 CUES = [
     (1, "Inference on GCP", 1.0,
-     ["Seven ways to serve a model on Google Cloud, one Strands agent over all of them."], []),
+     ["Seven ways to serve a model on Google Cloud, one ADK agent over all of them."], []),
     (2, "About me", 1.0, ["GDE Cloud and AI/ML, AWS Community Builder."], []),
     (3, "Where to find me", 0.5, ["Everything today is on GitHub and dev.to."], []),
     (4, "One Question, Seven Ways to Answer It", 2.0,
@@ -123,10 +123,10 @@ CUES = [
      ["v0.31.0 on Docker Hub for both, two days apart."], []),
     (29, "TPU's Hard Part: Getting One", 2.0,
      ["Serving was easy. Capacity was the work: v6e nowhere, v5e flex-start in 22 seconds."], []),
-    (30, "One Strands Agent", 0.5, [], []),
+    (30, "One ADK Agent", 0.5, [], []),
     (31, "One Agent, Two Model Classes", 2.0,
-     ["GeminiModel for Gemini; OpenAIModel with a base_url for the other six.",
-      "Vertex needs rawPredict and stream=False; Cloud Run an identity token."], []),
+     ["Gemini for Gemini; LiteLlm with an api_base for the other six.",
+      "Vertex needs rawPredict; Cloud Run an identity token."], []),
     (32, "Demo 1: Counting Itself, Gemma MaaS Said 9", 4.0,
      ["Eleven ids; how many are 10 or more? The answer is 8.",
       "Then the contrast: --tools rows hands the model the ids to count itself."],

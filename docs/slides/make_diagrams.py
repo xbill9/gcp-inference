@@ -2,7 +2,7 @@
 
     python3 docs/slides/make_diagrams.py     writes docs/slides/arch-*.png; the deck uses copies named with their hash
 
-Same layout as ~/aws-inference-strands/docs/slides/make_diagrams.py, in Google's colours. Labels come
+In Google's colours. Labels come
 from backends.py and stage/up.sh.
 """
 
@@ -68,47 +68,47 @@ def figure(name, rows):
 def main():
     # Hosted on Vertex AI: billed per token, nothing to start
     figure("hosted", [
-        (4.8, 3.2, [("Strands agent", "GeminiModel", "laptop", 5.6, "Vertex AI API"),
+        (4.8, 3.2, [("ADK agent", "Gemini", "laptop", 5.6, "Vertex AI API"),
                     ("Gemini on Vertex AI", "global endpoint, per token", "gcp", 7.4, ""),
                     ("Gemini 3.5 Flash-Lite", "Google model", "chip", 5.6, "")]),
-        (0.8, 3.2, [("Strands agent", "OpenAIModel", "laptop", 5.6, "OpenAI-compatible"),
+        (0.8, 3.2, [("ADK agent", "LiteLlm", "laptop", 5.6, "OpenAI-compatible"),
                     ("Vertex AI MaaS", "global endpoint, per token", "gcp", 7.4, ""),
                     ("Gemma 4 26B A4B", "open model, serverless", "chip", 5.6, "")]),
     ])
     # Your container, Google runs it: Vertex AI endpoint and Cloud Run
     figure("managed", [
-        (4.8, 3.2, [("Strands agent", "OpenAIModel", "laptop", 5.4, ":rawPredict"),
+        (4.8, 3.2, [("ADK agent", "LiteLlm", "laptop", 5.4, ":rawPredict"),
                     ("Vertex AI endpoint", "g2-standard-4, us-central1\nvLLM 0.30 container", "gcp", 7.0, ""),
                     ("NVIDIA L4", "Gemma 4 E2B repack", "chip", 5.4, "")]),
-        (0.8, 3.2, [("Strands agent", "OpenAIModel", "laptop", 5.4, "HTTPS + ID token"),
+        (0.8, 3.2, [("ADK agent", "LiteLlm", "laptop", 5.4, "HTTPS + ID token"),
                     ("Cloud Run service", "4 vCPU, 16 GiB, us-east4\nscales to zero", "gcp", 7.0, ""),
                     ("NVIDIA L4", "Gemma 4 E2B repack", "chip", 5.4, "")]),
     ])
     # Your VM or cluster, reached without inbound ports
     figure("gpus", [
-        (4.8, 3.2, [("Strands agent", "OpenAIModel", "laptop", 5.4, "localhost"),
+        (4.8, 3.2, [("ADK agent", "LiteLlm", "laptop", 5.4, "localhost"),
                     ("IAP TCP tunnel", "no public port", "path", 5.8, ""),
                     ("Compute Engine", "g2-standard-4\nvLLM 0.30 in Docker", "gcp", 6.4, ""),
                     ("NVIDIA L4", "24 GB\nE2B repack", "chip", 5.4, "")]),
-        (0.8, 3.2, [("Strands agent", "OpenAIModel", "laptop", 5.4, "localhost"),
+        (0.8, 3.2, [("ADK agent", "LiteLlm", "laptop", 5.4, "localhost"),
                     ("kubectl port-forward", "no Service exposed", "path", 5.8, ""),
                     ("GKE Autopilot", "a Deployment, one Pod\nnode made on demand", "gcp", 6.4, ""),
                     ("NVIDIA L4", "24 GB\nE2B repack", "chip", 5.4, "")]),
     ])
     # Google silicon
     figure("tpu", [
-        (2.7, 3.4, [("Strands agent", "OpenAIModel\ntool calls work", "laptop", 5.4, "localhost"),
+        (2.7, 3.4, [("ADK agent", "LiteLlm\ntool calls work", "laptop", 5.4, "localhost"),
                     ("SSH forward", "no public port", "path", 5.8, ""),
                     ("Cloud TPU VM", "vllm/vllm-tpu 0.30\nflex-start request", "gcp", 6.4, ""),
                     ("TPU v5e-1", "one v5e chip\nGemma 4 E2B, bf16", "chip", 5.4, "")]),
     ])
     # One agent, seven backends, one row each
     fig, ax = canvas()
-    box(ax, 0.8, 2.9, 7.0, 3.0, "One Strands agent", "a model object\nper backend", "laptop")
-    backends = [("Gemini on Vertex AI", "GeminiModel", "gcp"), ("Gemma 4 MaaS", "OpenAIModel", "gcp"),
-                ("Vertex AI endpoint, L4", "OpenAIModel", "gcp"), ("Cloud Run, L4", "OpenAIModel", "gcp"),
-                ("GKE Autopilot, L4", "OpenAIModel", "gcp"), ("Compute Engine, L4", "OpenAIModel", "gcp"),
-                ("Cloud TPU v5e", "OpenAIModel", "chip")]
+    box(ax, 0.8, 2.9, 7.0, 3.0, "One ADK agent", "a model object\nper backend", "laptop")
+    backends = [("Gemini on Vertex AI", "Gemini", "gcp"), ("Gemma 4 MaaS", "LiteLlm", "gcp"),
+                ("Vertex AI endpoint, L4", "LiteLlm", "gcp"), ("Cloud Run, L4", "LiteLlm", "gcp"),
+                ("GKE Autopilot, L4", "LiteLlm", "gcp"), ("Compute Engine, L4", "LiteLlm", "gcp"),
+                ("Cloud TPU v5e", "LiteLlm", "chip")]
     h, step = 1.0, 1.17
     for i, (name, cls, kind) in enumerate(backends):
         y = H - 0.35 - h - i * step
@@ -133,7 +133,7 @@ def ways():
     ax.set_xlim(0, w), ax.set_ylim(0, h), ax.axis("off")
     ax.add_patch(FancyBboxPatch((10, 10.7), 12, 2.1, boxstyle="round,pad=0.02,rounding_size=0.35",
                                 fc=FILL["laptop"], ec=BLUE, lw=3))
-    ax.text(16, 12.05, "One Strands agent", ha="center", va="center", fontsize=26, weight="bold", color=INK)
+    ax.text(16, 12.05, "One ADK agent", ha="center", va="center", fontsize=26, weight="bold", color=INK)
     ax.text(16, 11.25, "same question, graded in code", ha="center", va="center", fontsize=18, color=INK)
     cols = [("Hosted API", ["Gemini", "Gemma 4 MaaS"]),
             ("Managed endpoint", ["Vertex AI", "your vLLM, L4"]),
@@ -269,8 +269,8 @@ def vertex():
         label(12.8, 5.9 - i * 1.5, "\u2022  " + t, 16, bold=False, ha="left")
 
     rbox(25.2, 8.6, 6.2, 2.8, FILL["laptop"], BLUE)
-    label(28.3, 10.4, "Strands agent", 19)
-    label(28.3, 9.4, "OpenAIModel", 15, bold=False)
+    label(28.3, 10.4, "ADK agent", 19)
+    label(28.3, 9.4, "LiteLlm", 15, bold=False)
     ax.add_patch(FancyArrowPatch((25.1, 9.6), (22.9, 9.6), arrowstyle="-|>", mutation_scale=30, lw=3.5, color=YELLOW))
     label(28.3, 7.6, ":rawPredict, access token", 14, bold=False)
     rbox(25.2, 2.2, 6.2, 2.8, FILL["laptop"], BLUE)

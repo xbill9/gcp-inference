@@ -1,4 +1,4 @@
-"""Demo 1: the same Strands agent, the same question, on every tool-capable backend.
+"""Demo 1: the same Google ADK agent, the same question, on every tool-capable backend.
 
 The question is "how many of these ids are 10 or more?" over eleven ids. Two tool
 sets are offered, never both at once:
@@ -20,7 +20,7 @@ A run is graded on what happened, not on what the model says:
 """
 
 import argparse
-import contextlib
+import asyncio
 import json
 import operator
 import os
@@ -53,42 +53,30 @@ def count(op: str, value: int) -> dict:
             "min": min(hit) if hit else None, "max": max(hit) if hit else None}
 
 
-def mcp_client():
-    """A Strands MCP client for mcp_server.py over stdio, offering count_ids only."""
-    from mcp import StdioServerParameters, stdio_client
-    from strands.tools.mcp import MCPClient
+def mcp_toolset():
+    """An ADK toolset for mcp_server.py over stdio, offering count_ids only."""
+    from google.adk.tools.mcp_tool import McpToolset
+    from google.adk.tools.mcp_tool.mcp_session_manager import StdioConnectionParams
+    from mcp import StdioServerParameters
     server = os.path.join(os.path.dirname(os.path.abspath(__file__)), "mcp_server.py")
-    return MCPClient(lambda: stdio_client(StdioServerParameters(command=sys.executable, args=[server])),
-                     tool_filters={"allowed": ["count_ids"]})
+    return McpToolset(connection_params=StdioConnectionParams(
+        server_params=StdioServerParameters(command=sys.executable, args=[server]), timeout=30),
+        tool_filter=["count_ids"])
 
 
-def calls_from(messages: list) -> list:
-    """The tool calls an agent made, read back from its conversation."""
-    return [{"tool": c["toolUse"]["name"], **c["toolUse"].get("input", {})}
-            for m in messages if m["role"] == "assistant" for c in m["content"] if "toolUse" in c]
+def count_ids(op: str, value: int) -> dict:
+    """Count the ids matching `id <op> value`, computed by the engine.
+
+    Args:
+        op: one of >=, >, <=, <, ==
+        value: the integer to compare each id against
+    """
+    return count(op, value)
 
 
-def make_tools(kind: str, calls: list):
-    from strands import tool
-
-    @tool
-    def count_ids(op: str, value: int) -> dict:
-        """Count the ids matching `id <op> value`, computed by the engine.
-
-        Args:
-            op: one of >=, >, <=, <, ==
-            value: the integer to compare each id against
-        """
-        calls.append({"tool": "count_ids", "op": op, "value": value})
-        return count(op, value)
-
-    @tool
-    def list_ids() -> list:
-        """Return every id in the table."""
-        calls.append({"tool": "list_ids"})
-        return IDS
-
-    return [count_ids] if kind == "engine" else [list_ids]
+def list_ids() -> list:
+    """Return every id in the table."""
+    return IDS
 
 
 # Restatements of the question's threshold ("8 ids are 10 or more"), dropped before
@@ -110,21 +98,18 @@ def grade(answer: str, calls: list, kind: str) -> dict:
             "filters": [f"id {c['op']} {c['value']}" for c in counted], "tool_calls": len(calls)}
 
 
-def run_once(b: backends.Backend, kind: str, client=None) -> dict:
-    """One agent run. For kind "mcp", pass a started mcp_client(); the calls are read back
-    from the agent's messages, because the tool runs in the server's process."""
-    from strands import Agent
-    calls: list = []
-    tools = client.list_tools_sync() if kind == "mcp" else make_tools(kind, calls)
-    agent = Agent(model=backends.strands_model(b), system_prompt=SYSTEM, tools=tools, callback_handler=None)
+async def run_once(b: backends.Backend, kind: str, toolset=None) -> dict:
+    """One agent run. The tool calls are read back from the agent's events, so a tool served
+    by the MCP server in its own process is graded the same way as a local one."""
+    tools = [toolset] if kind == "mcp" else [count_ids] if kind == "engine" else [list_ids]
+    agent = backends.adk_agent(b, SYSTEM, tools)
     t0 = time.perf_counter()
+    calls: list = []
     try:
-        answer = str(agent(QUESTION))
+        answer, calls = await backends.run_agent(agent, QUESTION)
         error = None
     except Exception as exc:  # a backend failure is a result, not a crash
         answer, error = "", f"{type(exc).__name__}: {exc}"[:300]
-    if kind == "mcp":
-        calls = calls_from(agent.messages)
     result = grade(answer, calls, kind)
     result.update(backend=b.name, seconds=round(time.perf_counter() - t0, 2), error=error,
                   answer=answer.strip()[-200:])
@@ -157,23 +142,26 @@ def main() -> int:
 
     usable = [b for b in backends.configured() if b.tool_capable]
     print(f"Question: {QUESTION}\nIds: {IDS}\nTrue answer: {len(TRUTH)}  tools: {a.tools}\n")
-    client = mcp_client() if a.tools == "mcp" else contextlib.nullcontext()
-    with client:
-        rows = run_all(usable, a, client)
+    rows = asyncio.run(run_all(usable, a))
     summary = summarize(rows, a.tools)
     report(summary, rows, a)
     return 0
 
 
-def run_all(usable: list, a, client) -> list:
+async def run_all(usable: list, a) -> list:
+    toolset = mcp_toolset() if a.tools == "mcp" else None
     rows = []
-    for b in usable:
-        for n in range(a.runs):
-            r = run_once(b, a.tools, client)
-            rows.append(r)
-            mark = "ERR" if r["error"] else ("ok " if r["correct"] else "BAD")
-            print(f"  {b.name:<10} run {n + 1}/{a.runs}  {mark}  quoted={r['quoted']}  "
-                  f"filters={r['filters']}  {r['seconds']}s" + (f"  {r['error']}" if r["error"] else ""))
+    try:
+        for b in usable:
+            for n in range(a.runs):
+                r = await run_once(b, a.tools, toolset)
+                rows.append(r)
+                mark = "ERR" if r["error"] else ("ok " if r["correct"] else "BAD")
+                print(f"  {b.name:<10} run {n + 1}/{a.runs}  {mark}  quoted={r['quoted']}  "
+                      f"filters={r['filters']}  {r['seconds']}s" + (f"  {r['error']}" if r["error"] else ""))
+    finally:
+        if toolset:
+            await toolset.close()
     return rows
 
 

@@ -1,6 +1,6 @@
-# One Strands agent, every GCP inference path
+# One ADK agent, every GCP inference path
 
-The Google Cloud counterpart of [aws-inference-strands](https://github.com/xbill9/aws-inference-strands): the same Strands agent, the same questions and the same grading, on seven ways to run a model on Google Cloud, from a hosted API to a TPU you start yourself.
+One [Google ADK](https://google.github.io/adk-docs/) agent, the same questions and the same grading, on seven ways to run a model on Google Cloud, from a hosted API to a TPU you start yourself.
 
 | Backend | What it is | Model |
 |---|---|---|
@@ -106,7 +106,7 @@ Docker runs on the VMs, so there's no need for it locally. No Hugging Face token
 #### Install
 
 ```bash
-pip install 'strands-agents[openai,gemini]' google-genai mcp
+pip install 'google-adk[extensions]' google-genai mcp
 ```
 
 #### Quick demo: one TPU, one command
@@ -164,7 +164,7 @@ Each backend is turned on by its variable; unset means skipped. `BACKENDS=gemini
 
 #### MCP server
 
-`mcp_server.py` is the Google Cloud port of the [aws-inference-strands](https://github.com/xbill9/aws-inference-strands) server: the same tools and annotations, with `gcloud` and `kubectl` in place of boto3 and SSM. `.mcp.json` registers it for Claude Code as `tpu-demo`; any MCP client can start it with `python3 mcp_server.py`.
+`mcp_server.py` runs `gcloud` and `kubectl`, so it needs nothing beyond what `stage/` uses. `.mcp.json` registers it for Claude Code as `tpu-demo`; any MCP client can start it with `python3 mcp_server.py`.
 
 | Tool | Kind | What it does |
 |---|---|---|

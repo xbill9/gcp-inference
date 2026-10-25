@@ -4,17 +4,16 @@ Every backend is configured from the environment, so the same code runs against
 whatever is up on the day. A backend whose variable is unset is skipped, not
 faked: the demos print which ones they could reach.
 
-    kind    what Strands uses                     auth
-    gemini  strands.models.gemini.GeminiModel     ADC, Vertex AI
-    openai  strands.models.openai.OpenAIModel     none (a local tunnel), a Google access token
+    kind    the Google ADK model                  auth
+    gemini  google.adk.models.Gemini              ADC, Vertex AI
+    openai  google.adk.models.lite_llm.LiteLlm    none (a local tunnel), a Google access token
                                                   (Vertex AI), or an identity token (Cloud Run)
 
 Every self-hosted backend runs vLLM with --enable-auto-tool-choice, so all of them
 can drive an agent, the TPU included.
 
 The Vertex AI endpoint serves vLLM behind :rawPredict, whose path does not end in
-/chat/completions; _vertex_raw_predict rewrites the OpenAI client's request onto it. A shared
-endpoint does not stream, so that one backend runs Strands with stream=False.
+/chat/completions; _vertex_raw_predict rewrites the OpenAI client's request onto it.
 """
 
 import json
@@ -22,8 +21,13 @@ import os
 import subprocess
 import time
 import urllib.request
+import warnings
 from dataclasses import dataclass
 from typing import Optional
+
+
+# ADK announces each experimental feature it turns on; the demos' output has no room for it.
+warnings.filterwarnings("ignore", message=r"\[EXPERIMENTAL\]")
 
 
 @dataclass
@@ -104,41 +108,49 @@ def _url(b: Backend) -> str:
     return base
 
 
-def strands_model(b: Backend, temperature: float = 0.0, max_tokens: int = 512):
-    """The Strands model object for a backend."""
+def adk_model(b: Backend):
+    """The Google ADK model object for a backend."""
     if b.kind == "gemini":
-        from strands.models.gemini import GeminiModel
-        return GeminiModel(client_args={"vertexai": True, "project": b.project, "location": b.location},
-                           model_id=b.model,
-                           params={"temperature": temperature, "max_output_tokens": max_tokens})
+        from google.adk.models import Gemini
+        os.environ.setdefault("GOOGLE_GENAI_USE_VERTEXAI", "TRUE")
+        os.environ.setdefault("GOOGLE_CLOUD_PROJECT", b.project)
+        os.environ["GOOGLE_CLOUD_LOCATION"] = b.location
+        return Gemini(model=b.model)
     if b.kind == "openai":
-        from strands.models.openai import OpenAIModel
-        client_args = {"base_url": b.url, "api_key": token(b.auth)}
+        from google.adk.models.lite_llm import LiteLlm
         extra = {}
         if b.name == "vertex":
-            client_args["http_client"] = _KeptOpen(event_hooks={"request": [_async(_vertex_raw_predict)]},
-                                                   timeout=300)
-            extra["stream"] = False  # a shared Vertex AI endpoint does not stream
-        return OpenAIModel(client_args=client_args, model_id=b.model,
-                           params={"temperature": temperature, "max_tokens": max_tokens}, **extra)
+            import httpx
+            from openai import AsyncOpenAI
+            hook = httpx.AsyncClient(event_hooks={"request": [_async(_vertex_raw_predict)]}, timeout=300)
+            extra["client"] = AsyncOpenAI(base_url=b.url, api_key=token(b.auth), http_client=hook)
+        return LiteLlm(model=f"openai/{b.model}", api_base=b.url, api_key=token(b.auth), **extra)
     raise ValueError(f"{b.name}: unknown kind {b.kind}")
 
 
-def _kept_open():
-    import httpx
-
-    class KeptOpen(httpx.AsyncClient):
-        """Strands opens and closes an OpenAI client per request, which closes the httpx client it was
-        given; the agent's next turn would then fail. This one ignores the close."""
-
-        async def aclose(self) -> None:
-            return None
-
-    return KeptOpen
+def adk_agent(b: Backend, instruction: str, tools: list, temperature: float = 0.0, max_tokens: int = 512):
+    """An ADK LlmAgent on one backend, greedy unless told otherwise."""
+    from google.adk.agents import LlmAgent
+    from google.genai import types
+    return LlmAgent(name=f"agent_{b.name}", model=adk_model(b), instruction=instruction, tools=tools,
+                    generate_content_config=types.GenerateContentConfig(temperature=temperature,
+                                                                        max_output_tokens=max_tokens))
 
 
-def _KeptOpen(**kwargs):
-    return _kept_open()(**kwargs)
+async def run_agent(agent, text: str) -> tuple[str, list]:
+    """One user turn through an in-memory ADK runner. Returns the final text and the tool calls
+    the agent made, read from its events as {"tool": name, **args}."""
+    from google.adk.runners import InMemoryRunner
+    from google.genai import types
+    runner = InMemoryRunner(agent=agent, app_name="gcp-inference")
+    session = await runner.session_service.create_session(app_name="gcp-inference", user_id="demo")
+    answer, calls = "", []
+    async for event in runner.run_async(user_id="demo", session_id=session.id,
+                                        new_message=types.Content(role="user", parts=[types.Part(text=text)])):
+        calls += [{"tool": c.name, **(c.args or {})} for c in event.get_function_calls()]
+        if event.is_final_response() and event.content and event.content.parts:
+            answer = "".join(p.text or "" for p in event.content.parts)
+    return answer, calls
 
 
 def _async(fn):

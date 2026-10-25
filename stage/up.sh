@@ -6,8 +6,8 @@
 #
 # Gemini and Gemma MaaS on Vertex AI need nothing launched: they are billed per token.
 #
-# Every GPU backend serves the same checkpoint with the same vLLM image and flags as
-# the AWS run (~/aws-inference-strands): the E2B QAT w4a16 repack, max-model-len 8192,
+# Every GPU backend serves the same checkpoint with the same vLLM image and flags:
+# the E2B QAT w4a16 repack, max-model-len 8192,
 # tool calls on. The TPU serves google/gemma-4-E2B-it in bf16 with vLLM's TPU image, at the
 # model's full 131072-token context: its KV cache holds 321,280 tokens, 2.45 requests that long.
 #

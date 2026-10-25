@@ -1,6 +1,6 @@
 # gcp-inference
 
-One Strands agent on seven Google Cloud inference paths. README.md covers setup and the demos;
+One Google ADK agent on seven Google Cloud inference paths. README.md covers setup and the demos;
 **docs/TPU.md is the reference for the `tpu` backend** — read it before touching the TPU.
 
 ## Operating rules

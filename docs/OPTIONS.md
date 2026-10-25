@@ -27,7 +27,7 @@ Each option below has the facts that decide whether it fits, each with the Googl
 - The `global` endpoint has the most headroom; `us` and `eu` keep processing in that jurisdiction; single regions have the least. [Standard PayGo](https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/standard-paygo)
 - Flex is Preview, global only, with request timeouts up to 30 minutes. [Flex PayGo](https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/flex-paygo)
 - Gemini 3.5 Flash-Lite list prices in the Cloud Billing catalog, global, Standard: USD 0.30 per million input tokens and 2.50 per million output tokens (`results/2026-10-12/prices.json`).
-- Strands: `GeminiModel` with `client_args={"vertexai": True, ...}`.
+- Google ADK: `google.adk.models.Gemini` with `GOOGLE_GENAI_USE_VERTEXAI=TRUE`.
 - **Measured:** `results/2026-10-12/demo1-*-gemini.txt`, `bench-gemini.txt`.
 
 #### 2 — Open models as a service (MaaS)
@@ -46,7 +46,7 @@ Each option below has the facts that decide whether it fits, each with the Googl
 - Shared public endpoints: 60 s request timeout, 1.5 MB payloads, no streaming. Dedicated endpoints: 1 hour, 10 MB, streaming, and the OpenAI-style `invoke` routes. [Endpoint types](https://docs.cloud.google.com/gemini-enterprise-agent-platform/machine-learning/predictions/choose-endpoint-type)
 - This repo uses a shared endpoint with the predict route set to vLLM's `/v1/chat/completions`, called through `:rawPredict`; `backends.py` rewrites the OpenAI client's path onto it.
 - List price, us-central1, g2-standard-4 with one L4: node plus management fee, computed in `cost.py`.
-- **Measured:** the first model upload took 19 minutes while the proxy copied the image; a second upload of the same image took 2.5 minutes. Deploy-model to serving took 24.4 minutes (`results/2026-10-12/launch-to-ready.txt`). Strands' OpenAI client streams by default; on a shared endpoint it needs `stream=False`.
+- **Measured:** the first model upload took 19 minutes while the proxy copied the image; a second upload of the same image took 2.5 minutes. Deploy-model to serving took 24.4 minutes (`results/2026-10-12/launch-to-ready.txt`). A shared endpoint does not stream. ADK's default run mode sends non-streaming requests; the ADK port has not been run against this endpoint.
 
 #### 4 — Cloud Run with a GPU
 

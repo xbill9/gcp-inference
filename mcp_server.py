@@ -1,8 +1,7 @@
-"""MCP server for the Strands demo: the seven GCP backends, and the engine that counts.
+"""MCP server for the GCP inference demo: the seven backends, and the engine that counts.
 
-The Google Cloud port of mcp_server.py in ~/aws-inference-strands: the same tools, the same
-annotations, one server over every backend. Where the AWS server used boto3 and SSM Run
-Command, this one runs gcloud and kubectl, so it needs nothing beyond what stage/ uses.
+One server over every backend. It runs gcloud and kubectl, so it needs nothing beyond what
+stage/ uses.
 
     read-only    list_backends      every demo resource: Compute Engine, TPU, Cloud Run, GKE, Vertex AI
                  backend_health     ask one backend for the capital of France, on the box where there is one
