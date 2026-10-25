@@ -103,6 +103,16 @@ A warm compile cache keeps full speed and takes about four minutes from zero; ea
 
 It prints each step as it goes, with vLLM's own log while the model loads. Then run `claude` in this directory and ask in plain words: "what's running?" (`list_backends`), "is the TPU healthy?" (`backend_health`), "show me the TPU's vLLM log" (`backend_logs`). The flex-start TPU stops by itself after 4 hours.
 
+The TPU serves the model's full 131,072-token context. Its KV cache holds 321,280 tokens, so 2.45 requests of that length at once (vLLM's log, 2026-10-25). To change a vLLM flag on a TPU that is already up, without queueing for a new one, replace the container; startup takes about 8½ minutes, most of it compiling:
+
+```bash
+gcloud compute tpus tpu-vm ssh gcp-inference-tpu-node --project aisprint-491218 --zone us-west4-a --command \
+  'sudo docker rm -f vllm && sudo docker run -d --name vllm --restart unless-stopped --privileged --net=host \
+   -v /dev/shm:/dev/shm --shm-size 10gb -e HF_HOME=/dev/shm vllm/vllm-tpu:v0.30.0 \
+   vllm serve google/gemma-4-E2B-it --served-model-name gemma --max-model-len 131072 --port 8000 \
+   --max-num-batched-tokens 4096 --enable-auto-tool-choice --tool-call-parser gemma4'
+```
+
 #### Bring the backends up
 
 The talk's slides are [on Google Slides](https://docs.google.com/presentation/d/11qC6IwhqEEtOFqmQH3l4f0XGUbokoQi9NkeMN5F4K_Q/edit); `python3 stage/present.py` steps through them with the live command for each slide.

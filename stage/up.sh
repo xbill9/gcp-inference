@@ -8,7 +8,8 @@
 #
 # Every GPU backend serves the same checkpoint with the same vLLM image and flags as
 # the AWS run (~/aws-inference-strands): the E2B QAT w4a16 repack, max-model-len 8192,
-# tool calls on. The TPU serves google/gemma-4-E2B-it in bf16 with vLLM's TPU image.
+# tool calls on. The TPU serves google/gemma-4-E2B-it in bf16 with vLLM's TPU image, at the
+# model's full 131072-token context: its KV cache holds 321,280 tokens, 2.45 requests that long.
 #
 # Resources carry the label managed-by=gcp-inference. One that already exists is left alone.
 # Each launch line is stamped with UTC time; stage/check.py stamps the first pass.
@@ -170,7 +171,7 @@ docker inspect vllm >/dev/null 2>&1 && exit 0
 until docker pull $TPU_IMAGE; do sleep 10; done
 docker run -d --name vllm --restart unless-stopped --privileged --net=host \
   -v /dev/shm:/dev/shm --shm-size 10gb -e HF_HOME=/dev/shm $TPU_IMAGE \
-  vllm serve $TPU_MODEL --served-model-name gemma --max-model-len 8192 --port 8000 \
+  vllm serve $TPU_MODEL --served-model-name gemma --max-model-len 131072 --port 8000 \
   --max-num-batched-tokens 4096 --enable-auto-tool-choice --tool-call-parser gemma4
 UD
   for zone in $TPU_ZONES; do
