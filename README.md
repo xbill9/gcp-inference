@@ -93,6 +93,22 @@ A warm compile cache keeps full speed and takes about four minutes from zero; ea
 
 ---
 
+#### Prerequisites
+
+- The `gcloud` CLI with its `alpha` and `beta` components: TPU flex-start requests use `gcloud alpha`, the Cloud Run deploy uses `gcloud beta`.
+- Signed in twice: `gcloud auth login` for the scripts, and `gcloud auth application-default login` for the Gemini and MaaS clients in Python.
+- Access to two projects: `comglitn` for everything except the TPU (override with `PROJECT`), and `aisprint-491218`, which holds the TPU quota (override with `TPU_PROJECT`).
+- For GKE only: `kubectl` and `gke-gcloud-auth-plugin`.
+- For the MCP server: [Claude Code](https://claude.com/claude-code), or any MCP client. `.mcp.json` starts `python3 mcp_server.py`.
+
+Docker runs on the VMs, so there's no need for it locally. No Hugging Face token is needed either: both checkpoints download without one.
+
+#### Install
+
+```bash
+pip install 'strands-agents[openai,gemini]' google-genai mcp
+```
+
 #### Quick demo: one TPU, one command
 
 ```bash
@@ -131,12 +147,6 @@ Two settings this run depends on:
 
 - `vllm/vllm-openai:v0.30.0`. The `-cu129` build of the same release dies at import ("operator torchvision::nms does not exist") on every platform here.
 - `VLLM_ENABLE_CUDA_COMPATIBILITY=0`. Cloud Run and GKE Autopilot ship NVIDIA driver 580, which runs CUDA 13 natively; with the image's forward-compatibility libraries switched on, vLLM fails with CUDA error 803.
-
-#### Install
-
-```bash
-pip install 'strands-agents[openai,gemini]' google-genai mcp
-```
 
 #### Configure
 
