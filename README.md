@@ -141,7 +141,7 @@ python3 stage/ask.py cloudrun             # one backend, one question, timed
 stage/down.sh                             # delete everything and sweep for leftovers
 ```
 
-`up.sh` tries each zone in turn when a launch gets no capacity, and falls back to a flex-start TPU request. Nothing listens on a public port: Compute Engine through an IAP tunnel, GKE through `kubectl port-forward`, the TPU through an SSH forward, Cloud Run with `--no-allow-unauthenticated` and an identity token.
+`up.sh` tries each zone in turn when a launch gets no capacity, and falls back to a flex-start TPU request. The scripts reach each backend privately: Compute Engine through an IAP tunnel, GKE through `kubectl port-forward`, the TPU through an SSH forward, Cloud Run with `--no-allow-unauthenticated` and an identity token. The TPU's vLLM is also open on its external IP, on purpose for the demo; see [docs/TPU.md](docs/TPU.md#public-port-by-design).
 
 Two settings this run depends on:
 
