@@ -420,7 +420,7 @@ async def backend_logs(backend: str, tail: int = 60) -> str:
 
 
 @mcp.tool(title="Ask a backend", annotations=READ_ONLY)
-async def ask_backend(backend: str, prompt: str, max_tokens: int = 100) -> str:
+async def ask_backend(backend: str, prompt: str, max_tokens: int = 1024) -> str:
     """One chat request to one backend, timed here, as stage/ask.py does.
 
     Tokens per second uses the backend's own completion token count over this server's wall
@@ -430,13 +430,13 @@ async def ask_backend(backend: str, prompt: str, max_tokens: int = 100) -> str:
     Args:
         backend: one of gemini, maas, gce, tpu, gke, cloudrun, vertex
         prompt: the question
-        max_tokens: completion limit, 1 to 1024
+        max_tokens: completion limit, 1 to 4096 (the GPU backends hold 8192 tokens in all)
     """
     try:
         found = {b.name: b for b in backends.configured()}
         if backend not in found:
             return f"❌ {backend} is not configured here; configured: {', '.join(found)}. Run stage/forward.sh."
-        r = await asyncio.to_thread(backends.chat_once, found[backend], prompt, max(1, min(int(max_tokens), 1024)))
+        r = await asyncio.to_thread(backends.chat_once, found[backend], prompt, max(1, min(int(max_tokens), 4096)))
         return json.dumps(r, indent=2)
     except Exception as exc:
         return _error(exc)
